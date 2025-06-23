@@ -197,7 +197,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.sales')}</h3>
             <p className="text-gray-600">
-              {t('track.sales.description')}
+              Оценка навыков продаж, коммуникации и работы с клиентами
             </p>
           </div>
 
@@ -207,7 +207,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.academy')}</h3>
             <p className="text-gray-600">
-              {t('track.academy.description')}
+              Оценка способности к обучению, аналитического мышления и профессионального развития
             </p>
           </div>
 
@@ -217,7 +217,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.creative')}</h3>
             <p className="text-gray-600">
-              {t('track.creative.description')}
+              Оценка творческих способностей, дизайн-мышления и создания вирусного контента
             </p>
           </div>
         </div>
