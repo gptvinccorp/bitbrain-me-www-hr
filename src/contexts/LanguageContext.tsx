@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export type Language = 'en' | 'ru';
@@ -26,6 +25,11 @@ const translations = {
     'track.sales': 'Sales Department',
     'track.academy': 'Internal Academy',
     'track.creative': 'Creative Department (Viral Content)',
+    
+    // Track descriptions
+    'track.sales.description': 'Drive growth through strategic client relationships and innovative sales approaches in the Web3 space.',
+    'track.academy.description': 'Develop and deliver educational content that empowers the next generation of Web3 professionals.',
+    'track.creative.description': 'Create viral content that captures attention and drives engagement across digital platforms.',
     
     // Registration Form
     'form.name': 'Full Name',
@@ -67,6 +71,19 @@ const translations = {
     'admin.score': 'Score',
     'admin.date': 'Date',
     'admin.details': 'View Details',
+    
+    // Assessment Features
+    'features.title': 'Assessment Features',
+    'features.evaluate': 'What We Evaluate',
+    'features.details': 'Assessment Details',
+    'features.systematic': 'Systematic thinking and problem-solving',
+    'features.attention': 'Attention to detail and accuracy',
+    'features.capacity': 'Work capacity and time management',
+    'features.collaboration': 'Team collaboration and adaptability',
+    'features.questions': '8-10 focused questions',
+    'features.time': '10-minute time limit',
+    'features.results': 'Immediate results via email',
+    'features.privacy': 'Privacy guaranteed',
     
     // Questions
     'q1.title': 'Logic Sequence',
@@ -161,6 +178,11 @@ const translations = {
     'track.academy': 'Внутренняя академия',
     'track.creative': 'Креативный отдел (Вирусный контент)',
     
+    // Track descriptions
+    'track.sales.description': 'Развивайте бизнес через стратегические отношения с клиентами и инновационные подходы к продажам в Web3 пространстве.',
+    'track.academy.description': 'Разрабатывайте и предоставляйте образовательный контент, который даёт возможности следующему поколению Web3 профессионалов.',
+    'track.creative.description': 'Создавайте вирусный контент, который привлекает внимание и способствует вовлечению на цифровых платформах.',
+    
     // Registration Form
     'form.name': 'Полное имя',
     'form.email': 'Электронная почта',
@@ -201,6 +223,19 @@ const translations = {
     'admin.score': 'Балл',
     'admin.date': 'Дата',
     'admin.details': 'Подробности',
+    
+    // Assessment Features
+    'features.title': 'Особенности тестирования',
+    'features.evaluate': 'Что мы оцениваем',
+    'features.details': 'Детали тестирования',
+    'features.systematic': 'Системное мышление и решение проблем',
+    'features.attention': 'Внимание к деталям и точность',
+    'features.capacity': 'Работоспособность и управление временем',
+    'features.collaboration': 'Командное сотрудничество и адаптивность',
+    'features.questions': '8-10 целевых вопросов',
+    'features.time': '10-минутный лимит времени',
+    'features.results': 'Немедленные результаты по электронной почте',
+    'features.privacy': 'Гарантированная конфиденциальность',
     
     // Questions
     'q1.title': 'Логическая последовательность',
@@ -268,7 +303,7 @@ const translations = {
     
     'q10.title': 'Управление стрессом',
     'q10.text': 'Как вы справляетесь с внезапными изменениями в требованиях проекта?',
-    'q10.a': 'Расстраиваюсь и жалуюсь',
+    'q10.a': 'Расстраюсь и жалуюсь',
     'q10.b': 'Быстро адаптируюсь и ищу новые решения',
     'q10.c': 'Прошу подробных объяснений перед продолжением',
     'q10.d': 'Продолжаю по первоначальному плану',

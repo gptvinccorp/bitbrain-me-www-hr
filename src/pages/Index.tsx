@@ -9,6 +9,7 @@ import ThankYou from '@/components/ThankYou';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Answer, Candidate } from '@/types/assessment';
 import { calculateScore, generateRecommendations } from '@/utils/scoring';
+import { storageService } from '@/services/storage';
 
 type AppState = 'landing' | 'registration' | 'test' | 'complete';
 
@@ -39,7 +40,7 @@ const Index = () => {
       const { totalScore, moduleScores } = calculateScore(answers);
       setFinalScore(totalScore);
 
-      // Store candidate data (in real app, this would go to a database)
+      // Create candidate data
       const candidate: Candidate = {
         id: Math.random().toString(36).substr(2, 9),
         name: registrationData.name,
@@ -52,6 +53,8 @@ const Index = () => {
         submittedAt: new Date()
       };
 
+      // Store candidate data using storage service
+      storageService.saveCandidate(candidate);
       console.log('Candidate assessment completed:', candidate);
       
       // Generate recommendations
@@ -141,7 +144,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.sales')}</h3>
             <p className="text-gray-600">
-              Drive growth through strategic client relationships and innovative sales approaches in the Web3 space.
+              {t('track.sales.description')}
             </p>
           </div>
 
@@ -151,7 +154,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.academy')}</h3>
             <p className="text-gray-600">
-              Develop and deliver educational content that empowers the next generation of Web3 professionals.
+              {t('track.academy.description')}
             </p>
           </div>
 
@@ -161,7 +164,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.creative')}</h3>
             <p className="text-gray-600">
-              Create viral content that captures attention and drives engagement across digital platforms.
+              {t('track.creative.description')}
             </p>
           </div>
         </div>
@@ -170,47 +173,47 @@ const Index = () => {
       {/* Features Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
-          <h3 className="text-3xl font-bold text-center mb-8">Assessment Features</h3>
+          <h3 className="text-3xl font-bold text-center mb-8">{t('features.title')}</h3>
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <h4 className="text-xl font-semibold mb-4">What We Evaluate</h4>
+              <h4 className="text-xl font-semibold mb-4">{t('features.evaluate')}</h4>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Systematic thinking and problem-solving
+                  {t('features.systematic')}
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Attention to detail and accuracy
+                  {t('features.attention')}
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Work capacity and time management
+                  {t('features.capacity')}
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Team collaboration and adaptability
+                  {t('features.collaboration')}
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="text-xl font-semibold mb-4">Assessment Details</h4>
+              <h4 className="text-xl font-semibold mb-4">{t('features.details')}</h4>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  8-10 focused questions
+                  {t('features.questions')}
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  10-minute time limit
+                  {t('features.time')}
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Immediate results via email
+                  {t('features.results')}
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Privacy guaranteed
+                  {t('features.privacy')}
                 </li>
               </ul>
             </div>
