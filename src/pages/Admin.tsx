@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,16 +20,52 @@ const Admin = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedTrack, setSelectedTrack] = useState<string>('all');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
-  // Проверка аутентификации
+  // Check authentication status
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
-    if (!isLoggedIn) {
-      navigate('/admin-login');
-    } else {
-      setIsAuthenticated(true);
-    }
+    const checkAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Auth check error:', error);
+          navigate('/admin-login');
+          return;
+        }
+
+        if (session?.user) {
+          setIsAuthenticated(true);
+          setUser(session.user);
+        } else {
+          navigate('/admin-login');
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        navigate('/admin-login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_OUT' || !session) {
+          setIsAuthenticated(false);
+          setUser(null);
+          navigate('/admin-login');
+        } else if (session?.user) {
+          setIsAuthenticated(true);
+          setUser(session.user);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   // Load candidates from Supabase
@@ -52,7 +89,9 @@ const Admin = () => {
   };
 
   useEffect(() => {
-    loadCandidates();
+    if (isAuthenticated) {
+      loadCandidates();
+    }
   }, [isAuthenticated]);
 
   // Set up real-time subscription
@@ -92,9 +131,21 @@ const Admin = () => {
     };
   }, [isAuthenticated]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_logged_in');
-    navigate('/admin-login');
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Выход выполнен",
+        description: "Вы успешно вышли из системы",
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Ошибка выхода",
+        description: "Произошла ошибка при выходе",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSendEmail = async (candidate: Candidate) => {
@@ -195,6 +246,18 @@ const Admin = () => {
     }
   };
 
+  // Show loading screen while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p>Проверка авторизации...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return null;
   }
@@ -205,7 +268,14 @@ const Admin = () => {
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">{t('admin.title')}</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{t('admin.title')}</h1>
+              {user && (
+                <p className="text-sm text-gray-600">
+                  Вошли как: {user.email}
+                </p>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <LanguageSelector />
               <Button 
@@ -246,7 +316,7 @@ const Admin = () => {
               <option value="creative">{t('track.creative')}</option>
             </select>
             <div className="text-sm text-gray-600">
-              Данные обновляются в реальном времени из Supabase
+              Защищено аутентификацией Supabase
             </div>
           </div>
           
@@ -308,12 +378,12 @@ const Admin = () => {
             {loading ? (
               <div className="text-center py-8 text-gray-500">
                 <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
-                <p>Загрузка данных из Supabase...</p>
+                <p>Загрузка данных...</p>
               </div>
             ) : candidates.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <p>Пока нет кандидатов. Результаты будут отображаться здесь после прохождения тестов.</p>
-                <p className="text-sm mt-2">Данные синхронизируются через Supabase и видны отовсюду.</p>
+                <p className="text-sm mt-2">Данные защищены RLS политиками Supabase.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">

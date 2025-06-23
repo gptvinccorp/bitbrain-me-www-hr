@@ -8,23 +8,47 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSelector from '@/components/LanguageSelector';
 import { Lock, AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminLogin = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    if (username === 'admin' && password === 'admin') {
-      localStorage.setItem('admin_logged_in', 'true');
-      navigate('/admin');
-    } else {
-      setError('Неверные учетные данные');
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError('Неверные учетные данные или ошибка входа');
+        console.error('Login error:', error);
+        return;
+      }
+
+      if (data.user) {
+        toast({
+          title: "Успешный вход",
+          description: "Добро пожаловать в админ панель",
+        });
+        navigate('/admin');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Произошла ошибка при входе');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,17 +64,22 @@ const AdminLogin = () => {
             <Lock className="w-6 h-6 text-blue-600" />
           </div>
           <CardTitle className="text-2xl">Вход в админку</CardTitle>
+          <p className="text-sm text-gray-600">
+            Используйте учетные данные Supabase для входа
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <Label htmlFor="username">Логин (login / password)</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
                 required
+                disabled={loading}
               />
             </div>
             
@@ -61,7 +90,9 @@ const AdminLogin = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Введите пароль"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -72,8 +103,8 @@ const AdminLogin = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full">
-              Войти
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Вход...' : 'Войти'}
             </Button>
 
             <Button 
@@ -81,6 +112,7 @@ const AdminLogin = () => {
               variant="outline"
               className="w-full"
               onClick={() => navigate('/')}
+              disabled={loading}
             >
               На главную
             </Button>
