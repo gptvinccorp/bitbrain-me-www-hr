@@ -3,6 +3,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { Question, QuestionOption } from '@/types/assessment';
 
 class QuestionsService {
+  // Helper function to safely convert Json to QuestionOption array
+  private convertJsonToQuestionOptions(jsonData: any): QuestionOption[] {
+    if (!Array.isArray(jsonData)) {
+      return [];
+    }
+    
+    return jsonData.map(item => ({
+      key: item.key || '',
+      textKey: item.textKey || '',
+      score: typeof item.score === 'number' ? item.score : 0
+    }));
+  }
+
   async getAllQuestions(): Promise<Question[]> {
     try {
       const { data, error } = await supabase
@@ -22,7 +35,7 @@ class QuestionsService {
         type: item.type as 'mcq' | 'likert' | 'image',
         titleKey: item.title_key,
         textKey: item.text_key,
-        options: Array.isArray(item.options) ? (item.options as QuestionOption[]) : [],
+        options: this.convertJsonToQuestionOptions(item.options),
         correctAnswer: item.correct_answer || undefined,
         maxScore: item.max_score,
         imageA: item.image_a_url || undefined,
@@ -53,7 +66,7 @@ class QuestionsService {
         type: item.type as 'mcq' | 'likert' | 'image',
         titleKey: item.title_key,
         textKey: item.text_key,
-        options: Array.isArray(item.options) ? (item.options as QuestionOption[]) : [],
+        options: this.convertJsonToQuestionOptions(item.options),
         correctAnswer: item.correct_answer || undefined,
         maxScore: item.max_score,
         imageA: item.image_a_url || undefined,
