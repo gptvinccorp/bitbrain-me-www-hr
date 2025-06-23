@@ -27,6 +27,8 @@ export interface Question {
   options: QuestionOption[];
   correctAnswer?: string;
   maxScore: number;
+  imageA?: string; // URL изображения A
+  imageB?: string; // URL изображения B
 }
 
 export interface QuestionOption {

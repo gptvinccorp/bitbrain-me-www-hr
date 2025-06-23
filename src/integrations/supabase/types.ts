@@ -51,6 +51,51 @@ export type Database = {
         }
         Relationships: []
       }
+      questions: {
+        Row: {
+          correct_answer: string | null
+          created_at: string
+          id: string
+          image_a_url: string | null
+          image_b_url: string | null
+          max_score: number
+          module: string
+          options: Json
+          question_id: string
+          text_key: string
+          title_key: string
+          type: string
+        }
+        Insert: {
+          correct_answer?: string | null
+          created_at?: string
+          id?: string
+          image_a_url?: string | null
+          image_b_url?: string | null
+          max_score?: number
+          module: string
+          options: Json
+          question_id: string
+          text_key: string
+          title_key: string
+          type: string
+        }
+        Update: {
+          correct_answer?: string | null
+          created_at?: string
+          id?: string
+          image_a_url?: string | null
+          image_b_url?: string | null
+          max_score?: number
+          module?: string
+          options?: Json
+          question_id?: string
+          text_key?: string
+          title_key?: string
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
