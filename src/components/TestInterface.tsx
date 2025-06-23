@@ -35,6 +35,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({ track, onComplete }) => {
         console.log('Loading questions for track:', track);
         const loadedQuestions = await questionsService.getRandomQuestionSet(track);
         console.log('Loaded questions:', loadedQuestions.length);
+        console.log('Questions details:', loadedQuestions.map(q => ({ id: q.questionId, module: q.module })));
         setQuestions(loadedQuestions);
       } catch (error) {
         console.error('Failed to load questions:', error);
@@ -78,16 +79,19 @@ const TestInterface: React.FC<TestInterfaceProps> = ({ track, onComplete }) => {
 
   const handleAnswerSelect = (value: string) => {
     setSelectedOption(value);
+    console.log(`Question ${questions[currentQuestion]?.questionId}: selected option ${value}`);
   };
 
   const handleNext = () => {
     if (selectedOption) {
       const timeSpent = Date.now() - questionStartTime;
       const newAnswer: Answer = {
-        questionId: questions[currentQuestion].id,
+        questionId: questions[currentQuestion].questionId, // Используем questionId вместо id
         selectedOption,
         timeSpent
       };
+
+      console.log('Saving answer:', newAnswer);
 
       const updatedAnswers = [...answers];
       const existingIndex = updatedAnswers.findIndex(a => a.questionId === newAnswer.questionId);
@@ -103,6 +107,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({ track, onComplete }) => {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(prev => prev + 1);
       } else {
+        console.log('Test completed, submitting answers:', updatedAnswers);
         onComplete(updatedAnswers);
       }
     }
@@ -111,7 +116,7 @@ const TestInterface: React.FC<TestInterfaceProps> = ({ track, onComplete }) => {
   const handlePrevious = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(prev => prev - 1);
-      const prevAnswer = answers.find(a => a.questionId === questions[currentQuestion - 1].id);
+      const prevAnswer = answers.find(a => a.questionId === questions[currentQuestion - 1].questionId);
       setSelectedOption(prevAnswer?.selectedOption || '');
     }
   };
@@ -120,12 +125,14 @@ const TestInterface: React.FC<TestInterfaceProps> = ({ track, onComplete }) => {
     if (selectedOption) {
       const timeSpent = Date.now() - questionStartTime;
       const finalAnswer: Answer = {
-        questionId: questions[currentQuestion].id,
+        questionId: questions[currentQuestion].questionId,
         selectedOption,
         timeSpent
       };
+      console.log('Submitting final answers:', [...answers, finalAnswer]);
       onComplete([...answers, finalAnswer]);
     } else {
+      console.log('Submitting answers without current question:', answers);
       onComplete(answers);
     }
   };

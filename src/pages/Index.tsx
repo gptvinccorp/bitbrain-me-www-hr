@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Users, Target, Palette, ArrowRight } from 'lucide-react';
@@ -46,7 +47,8 @@ const Index = () => {
       // Calculate completion time in seconds
       const completionTime = Math.round((new Date().getTime() - testStartTime.getTime()) / 1000);
       
-      const { totalScore, moduleScores } = calculateScore(answers);
+      // Важно: теперь calculateScore асинхронная функция
+      const { totalScore, moduleScores } = await calculateScore(answers);
       setFinalScore(totalScore);
 
       // Create candidate data

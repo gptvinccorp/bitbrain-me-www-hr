@@ -1,8 +1,14 @@
 
 import { Answer, ModuleScore } from '@/types/assessment';
-import { questions } from '@/data/questions';
+import { questionsService } from '@/services/questionsService';
 
-export const calculateScore = (answers: Answer[]): { totalScore: number; moduleScores: ModuleScore[] } => {
+export const calculateScore = async (answers: Answer[]): Promise<{ totalScore: number; moduleScores: ModuleScore[] }> => {
+  console.log('Calculating score for answers:', answers);
+  
+  // Получаем все вопросы из базы данных для правильного подсчета
+  const allQuestions = await questionsService.getAllQuestions();
+  console.log('All questions loaded for scoring:', allQuestions.length);
+  
   const moduleMap = new Map<string, { totalScore: number; maxScore: number }>();
 
   // Initialize modules
@@ -13,16 +19,23 @@ export const calculateScore = (answers: Answer[]): { totalScore: number; moduleS
 
   // Calculate scores for each answer
   answers.forEach(answer => {
-    const question = questions.find(q => q.id === answer.questionId);
+    const question = allQuestions.find(q => q.questionId === answer.questionId);
     if (question) {
+      console.log(`Processing question ${question.questionId}, selected: ${answer.selectedOption}`);
+      
       const option = question.options.find(opt => opt.key === answer.selectedOption);
       if (option) {
         const moduleData = moduleMap.get(question.module);
         if (moduleData) {
+          console.log(`Adding ${option.score} points to module ${question.module}`);
           moduleData.totalScore += option.score;
           moduleData.maxScore += question.maxScore;
         }
+      } else {
+        console.error(`Option ${answer.selectedOption} not found for question ${question.questionId}`);
       }
+    } else {
+      console.error(`Question ${answer.questionId} not found in database`);
     }
   });
 
@@ -34,6 +47,7 @@ export const calculateScore = (answers: Answer[]): { totalScore: number; moduleS
   moduleMap.forEach((data, module) => {
     if (data.maxScore > 0) {
       const normalizedScore = Math.round((data.totalScore / data.maxScore) * 10);
+      console.log(`Module ${module}: ${data.totalScore}/${data.maxScore} = ${normalizedScore}/10`);
       moduleScores.push({
         module,
         score: normalizedScore,
@@ -45,6 +59,7 @@ export const calculateScore = (answers: Answer[]): { totalScore: number; moduleS
   });
 
   const totalScore = Math.round(totalPoints / moduleScores.length);
+  console.log(`Final score: ${totalScore}/10 (from ${moduleScores.length} modules)`);
 
   return { totalScore, moduleScores };
 };

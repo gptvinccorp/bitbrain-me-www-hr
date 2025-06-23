@@ -1,106 +1,96 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Question, QuestionOption } from '@/types/assessment';
+import { Question } from '@/types/assessment';
 
-class QuestionsService {
-  // Helper function to safely convert Json to QuestionOption array
-  private convertJsonToQuestionOptions(jsonData: any): QuestionOption[] {
-    if (!Array.isArray(jsonData)) {
-      return [];
-    }
-    
-    return jsonData.map(item => ({
-      key: item.key || '',
-      textKey: item.textKey || '',
-      score: typeof item.score === 'number' ? item.score : 0
-    }));
-  }
-
-  async getAllQuestions(): Promise<Question[]> {
-    try {
-      const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .order('question_id');
-
-      if (error) {
-        console.error('Error fetching questions from Supabase:', error);
-        return [];
-      }
-
-      // Convert database format to app format with proper type conversion
-      return (data || []).map(item => ({
-        id: item.question_id,
-        module: item.module,
-        type: item.type as 'mcq' | 'likert' | 'image',
-        titleKey: item.title_key,
-        textKey: item.text_key,
-        options: this.convertJsonToQuestionOptions(item.options),
-        correctAnswer: item.correct_answer || undefined,
-        maxScore: item.max_score,
-        imageA: item.image_a_url || undefined,
-        imageB: item.image_b_url || undefined
-      }));
-    } catch (error) {
-      console.error('Error loading questions:', error);
-      return [];
-    }
-  }
-
-  async getQuestionsByModule(module: string): Promise<Question[]> {
-    try {
-      const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('module', module)
-        .order('question_id');
-
-      if (error) {
-        console.error(`Error fetching questions for module ${module}:`, error);
-        return [];
-      }
-
-      return (data || []).map(item => ({
-        id: item.question_id,
-        module: item.module,
-        type: item.type as 'mcq' | 'likert' | 'image',
-        titleKey: item.title_key,
-        textKey: item.text_key,
-        options: this.convertJsonToQuestionOptions(item.options),
-        correctAnswer: item.correct_answer || undefined,
-        maxScore: item.max_score,
-        imageA: item.image_a_url || undefined,
-        imageB: item.image_b_url || undefined
-      }));
-    } catch (error) {
-      console.error('Error loading questions by module:', error);
-      return [];
-    }
-  }
-
-  // Функция для получения случайного набора вопросов
-  async getRandomQuestionSet(track: string): Promise<Question[]> {
-    const modules = ['systematicThinking', 'attentionToDetail', 'workCapacity', 'honesty', 'growthMindset', 'teamCommitment', 'adaptability'];
-    
-    // Добавляем креативность для творческого трека
-    if (track === 'creative') {
-      modules.push('creativity');
-    }
-
-    const selectedQuestions: Question[] = [];
-
-    for (const module of modules) {
-      const moduleQuestions = await this.getQuestionsByModule(module);
-      
-      if (moduleQuestions.length > 0) {
-        // Выбираем случайный вопрос из модуля
-        const randomIndex = Math.floor(Math.random() * moduleQuestions.length);
-        selectedQuestions.push(moduleQuestions[randomIndex]);
-      }
-    }
-
-    return selectedQuestions;
-  }
+interface DatabaseQuestion {
+  id: string;
+  question_id: string;
+  module: string;
+  type: string;
+  title_key: string;
+  text_key: string;
+  options: any[];
+  correct_answer: string | null;
+  max_score: number;
+  image_a_url: string | null;
+  image_b_url: string | null;
 }
 
-export const questionsService = new QuestionsService();
+const mapDatabaseQuestionToQuestion = (dbQuestion: DatabaseQuestion): Question => {
+  return {
+    id: dbQuestion.question_id,
+    questionId: dbQuestion.question_id,
+    module: dbQuestion.module,
+    type: dbQuestion.type as 'mcq' | 'likert' | 'image',
+    titleKey: dbQuestion.title_key,
+    textKey: dbQuestion.text_key,
+    options: dbQuestion.options,
+    correctAnswer: dbQuestion.correct_answer,
+    maxScore: dbQuestion.max_score,
+    imageA: dbQuestion.image_a_url,
+    imageB: dbQuestion.image_b_url
+  };
+};
+
+export const questionsService = {
+  async getAllQuestions(): Promise<Question[]> {
+    console.log('Fetching all questions from database...');
+    const { data, error } = await supabase
+      .from('questions')
+      .select('*')
+      .order('question_id');
+
+    if (error) {
+      console.error('Error fetching questions:', error);
+      throw error;
+    }
+
+    console.log('Fetched questions from database:', data?.length || 0);
+    return data?.map(mapDatabaseQuestionToQuestion) || [];
+  },
+
+  async getRandomQuestionSet(track: string): Promise<Question[]> {
+    console.log('Getting question set for track:', track);
+    
+    const allQuestions = await this.getAllQuestions();
+    
+    // Фильтрация вопросов по треку
+    let filteredQuestions = allQuestions;
+    
+    // Для творческого трека добавляем вопрос креативности
+    if (track === 'creative') {
+      // Включаем все модули включая креативность
+      filteredQuestions = allQuestions;
+    } else {
+      // Для других треков исключаем креативность
+      filteredQuestions = allQuestions.filter(q => q.module !== 'creativity');
+    }
+    
+    console.log(`Filtered questions for ${track}:`, filteredQuestions.length);
+    
+    // Группируем по модулям
+    const moduleGroups = new Map<string, Question[]>();
+    filteredQuestions.forEach(q => {
+      if (!moduleGroups.has(q.module)) {
+        moduleGroups.set(q.module, []);
+      }
+      moduleGroups.get(q.module)!.push(q);
+    });
+    
+    // Выбираем по одному вопросу из каждого модуля (или все если модуль содержит только один вопрос)
+    const selectedQuestions: Question[] = [];
+    moduleGroups.forEach((questions, module) => {
+      if (questions.length > 0) {
+        // Для каждого модуля берем все доступные вопросы (так как в каждом модуле по 1-2 вопроса)
+        selectedQuestions.push(...questions);
+      }
+    });
+    
+    console.log('Selected questions for test:', selectedQuestions.length);
+    console.log('Questions by module:', Array.from(moduleGroups.keys()).map(module => 
+      `${module}: ${moduleGroups.get(module)?.length || 0}`
+    ));
+    
+    return selectedQuestions;
+  }
+};
