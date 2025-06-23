@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Users, Target, Palette, ArrowRight } from 'lucide-react';
@@ -10,6 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Answer, Candidate } from '@/types/assessment';
 import { calculateScore, generateRecommendations } from '@/utils/scoring';
 import { storageService } from '@/services/storage';
+import { sendEmailToCandidate } from '@/services/email';
 
 type AppState = 'landing' | 'registration' | 'test' | 'complete';
 
@@ -35,7 +35,7 @@ const Index = () => {
     setCurrentState('test');
   };
 
-  const handleTestComplete = (answers: Answer[]) => {
+  const handleTestComplete = async (answers: Answer[]) => {
     if (registrationData) {
       const { totalScore, moduleScores } = calculateScore(answers);
       setFinalScore(totalScore);
@@ -60,6 +60,14 @@ const Index = () => {
       // Generate recommendations
       const recommendations = generateRecommendations(moduleScores);
       console.log('HR Recommendations:', recommendations);
+
+      // Автоматически отправляем письмо кандидату
+      try {
+        await sendEmailToCandidate(candidate);
+        console.log('Email sent to candidate successfully');
+      } catch (error) {
+        console.error('Failed to send email to candidate:', error);
+      }
 
       setCurrentState('complete');
     }
@@ -113,7 +121,16 @@ const Index = () => {
             <h1 className="text-2xl font-bold text-gray-900">{t('header.title')}</h1>
             <p className="text-gray-600">{t('header.subtitle')}</p>
           </div>
-          <LanguageSelector />
+          <div className="flex items-center gap-2">
+            <LanguageSelector />
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.href = '/admin-login'}
+              className="text-sm"
+            >
+              Админка
+            </Button>
+          </div>
         </div>
       </header>
 

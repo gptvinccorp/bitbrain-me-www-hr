@@ -1,21 +1,38 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, Eye, Filter, Trash2 } from 'lucide-react';
+import { Download, Eye, Filter, Trash2, Mail, LogOut, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 import LanguageSelector from '@/components/LanguageSelector';
 import { Candidate } from '@/types/assessment';
 import { storageService } from '@/services/storage';
+import { sendEmailToCandidate } from '@/services/email';
+import { useToast } from '@/hooks/use-toast';
 
 const Admin = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedTrack, setSelectedTrack] = useState<string>('all');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Проверка аутентификации
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+    if (!isLoggedIn) {
+      navigate('/admin-login');
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [navigate]);
 
   // Load real candidates from storage
   useEffect(() => {
+    if (!isAuthenticated) return;
+    
     const loadCandidates = () => {
       const realCandidates = storageService.getAllCandidates();
       setCandidates(realCandidates);
@@ -26,7 +43,34 @@ const Admin = () => {
     // Refresh every 5 seconds to catch new submissions
     const interval = setInterval(loadCandidates, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuthenticated]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_logged_in');
+    navigate('/admin-login');
+  };
+
+  const handleSendEmail = async (candidate: Candidate) => {
+    toast({
+      title: "Отправка письма...",
+      description: `Отправляем результаты кандидату ${candidate.name}`,
+    });
+
+    const success = await sendEmailToCandidate(candidate);
+    
+    if (success) {
+      toast({
+        title: "Письмо отправлено!",
+        description: `Результаты успешно отправлены ${candidate.name}`,
+      });
+    } else {
+      toast({
+        title: "Ошибка отправки",
+        description: "Не удалось отправить письмо. Попробуйте еще раз.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const filteredCandidates = selectedTrack === 'all' 
     ? candidates 
@@ -72,6 +116,10 @@ const Admin = () => {
     }
   };
 
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -79,7 +127,17 @@ const Admin = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">{t('admin.title')}</h1>
-            <LanguageSelector />
+            <div className="flex items-center gap-2">
+              <LanguageSelector />
+              <Button variant="outline" onClick={() => navigate('/')} className="flex items-center gap-2">
+                <Home className="w-4 h-4" />
+                На главную
+              </Button>
+              <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+                <LogOut className="w-4 h-4" />
+                Выход
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -196,6 +254,14 @@ const Admin = () => {
                             <Button variant="ghost" size="sm" className="flex items-center gap-2">
                               <Eye className="w-4 h-4" />
                               {t('admin.details')}
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleSendEmail(candidate)}
+                              className="text-blue-600 hover:text-blue-700"
+                            >
+                              <Mail className="w-4 h-4" />
                             </Button>
                             <Button 
                               variant="ghost" 

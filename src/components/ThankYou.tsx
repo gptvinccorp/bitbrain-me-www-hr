@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Mail, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 
 interface ThankYouProps {
   candidateName: string;
@@ -11,6 +13,11 @@ interface ThankYouProps {
 
 const ThankYou: React.FC<ThankYouProps> = ({ candidateName, score }) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  const handleGoHome = () => {
+    navigate('/');
+  };
 
   return (
     <div className="max-w-md mx-auto">
@@ -32,6 +39,14 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidateName, score }) => {
               <span className="font-medium">{t('thanks.email')}</span>
             </div>
           </div>
+
+          <Button 
+            onClick={handleGoHome}
+            className="w-full mt-6 bg-blue-600 hover:bg-blue-700"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            {t('nav.home')}
+          </Button>
 
           <div className="text-sm text-gray-500 mt-6">
             <p>Assessment ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
