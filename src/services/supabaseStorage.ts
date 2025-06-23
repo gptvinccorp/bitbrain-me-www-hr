@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Candidate, ModuleScore, Answer } from '@/types/assessment';
 
@@ -38,36 +37,89 @@ function safeParseJson<T>(data: any, fallback: T): T {
 class SupabaseStorageService {
   async saveCandidate(candidate: Candidate, completionTime?: number): Promise<boolean> {
     try {
-      console.log('Attempting to save candidate to Supabase:', candidate.name);
+      console.log('=== SAVING CANDIDATE TO SUPABASE ===');
+      console.log('Candidate name:', candidate.name);
+      console.log('Candidate email:', candidate.email);
+      console.log('Candidate track:', candidate.track);
+      console.log('Candidate score:', candidate.score);
+      console.log('Module scores:', candidate.moduleScores);
+      console.log('Answers count:', candidate.answers?.length || 0);
+      console.log('Completion time:', completionTime);
       
-      // Prepare data for insertion
-      const candidateData: CandidateInsert = {
-        name: candidate.name,
-        email: candidate.email,
-        phone: candidate.phone,
-        track: candidate.track,
-        answers: JSON.stringify(candidate.answers),
-        score: candidate.score,
-        module_scores: JSON.stringify(candidate.moduleScores),
-        completion_time: completionTime
-      };
-
-      console.log('Prepared candidate data:', candidateData);
-
-      const { data, error } = await supabase
-        .from('candidates')
-        .insert([candidateData])
-        .select();
-
-      if (error) {
-        console.error('Error saving candidate to Supabase:', error);
+      // Validate required fields
+      if (!candidate.name || !candidate.email || !candidate.track) {
+        console.error('Missing required fields:', {
+          name: !!candidate.name,
+          email: !!candidate.email,
+          track: !!candidate.track
+        });
         return false;
       }
 
-      console.log('Candidate saved successfully to Supabase:', data);
+      // Prepare data for insertion
+      const candidateData: CandidateInsert = {
+        name: candidate.name.trim(),
+        email: candidate.email.trim().toLowerCase(),
+        phone: candidate.phone?.trim() || '',
+        track: validateTrack(candidate.track),
+        answers: candidate.answers || [],
+        score: Math.round(candidate.score || 0),
+        module_scores: candidate.moduleScores || [],
+        completion_time: completionTime
+      };
+
+      console.log('Prepared candidate data for insertion:', candidateData);
+
+      // Check if we can connect to Supabase
+      const { data: testData, error: testError } = await supabase
+        .from('candidates')
+        .select('count', { count: 'exact', head: true });
+
+      if (testError) {
+        console.error('Cannot connect to Supabase:', testError);
+        return false;
+      }
+
+      console.log('Supabase connection test successful, current records count:', testData);
+
+      // Insert the candidate data
+      const { data, error } = await supabase
+        .from('candidates')
+        .insert([candidateData])
+        .select('*');
+
+      if (error) {
+        console.error('=== SUPABASE INSERT ERROR ===');
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        console.error('Error hint:', error.hint);
+        console.error('Full error object:', error);
+        
+        // Check for specific RLS errors
+        if (error.message.includes('row-level security') || error.message.includes('policy')) {
+          console.error('RLS POLICY ERROR: The insert is being blocked by Row Level Security policies');
+        }
+        
+        return false;
+      }
+
+      if (!data || data.length === 0) {
+        console.error('No data returned after insert, but no error thrown');
+        return false;
+      }
+
+      console.log('=== CANDIDATE SAVED SUCCESSFULLY ===');
+      console.log('Inserted data:', data[0]);
+      console.log('Candidate ID:', data[0].id);
       return true;
-    } catch (error) {
-      console.error('Error saving candidate:', error);
+      
+    } catch (error: any) {
+      console.error('=== CRITICAL ERROR SAVING CANDIDATE ===');
+      console.error('Error type:', typeof error);
+      console.error('Error message:', error?.message || 'Unknown error');
+      console.error('Error stack:', error?.stack);
+      console.error('Full error object:', error);
       return false;
     }
   }

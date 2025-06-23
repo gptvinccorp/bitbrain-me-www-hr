@@ -1,127 +1,244 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Mail, Home, Clock, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CheckCircle, AlertCircle, Loader2, Mail, Database } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Candidate } from '@/types/assessment';
+import { supabaseStorageService } from '@/services/supabaseStorage';
+import { sendEmailToCandidate } from '@/services/email';
+import { useToast } from '@/hooks/use-toast';
 
 interface ThankYouProps {
-  candidateName: string;
-  score: number;
-  emailSent?: boolean;
+  candidate: Candidate;
+  completionTime?: number;
+  onStartNew: () => void;
 }
 
-const ThankYou: React.FC<ThankYouProps> = ({ candidateName, score, emailSent = false }) => {
+const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartNew }) => {
   const { t } = useLanguage();
-  const [emailStatus, setEmailStatus] = useState<'sending' | 'sent' | 'failed'>('sending');
+  const { toast } = useToast();
+  const [savingState, setSavingState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [emailState, setEmailState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [errorDetails, setErrorDetails] = useState<string>('');
 
   useEffect(() => {
-    // Имитируем небольшую задержку для отправки письма
-    const timer = setTimeout(() => {
-      setEmailStatus(emailSent ? 'sent' : 'failed');
-    }, 2000);
+    const saveAndSendEmail = async () => {
+      console.log('=== STARTING SAVE AND EMAIL PROCESS ===');
+      
+      // Step 1: Save to database
+      setSavingState('saving');
+      setErrorDetails('');
+      
+      try {
+        console.log('Attempting to save candidate:', candidate.name);
+        const saveSuccess = await supabaseStorageService.saveCandidate(candidate, completionTime);
+        
+        if (saveSuccess) {
+          console.log('✅ Candidate saved successfully');
+          setSavingState('saved');
+          
+          toast({
+            title: "Данные сохранены",
+            description: "Ваши результаты успешно сохранены в базе данных",
+          });
 
-    return () => clearTimeout(timer);
-  }, [emailSent]);
+          // Step 2: Send email (only if saving was successful)
+          setEmailState('sending');
+          
+          try {
+            console.log('Attempting to send email to:', candidate.email);
+            const emailResult = await sendEmailToCandidate(candidate);
+            
+            if (emailResult.success) {
+              console.log('✅ Email sent successfully');
+              setEmailState('sent');
+              
+              toast({
+                title: "Email отправлен",
+                description: "Результаты отправлены на вашу электронную почту",
+              });
+            } else {
+              console.error('❌ Email sending failed:', emailResult.error);
+              setEmailState('error');
+              setErrorDetails(emailResult.error || 'Неизвестная ошибка отправки email');
+              
+              toast({
+                title: "Ошибка отправки email",
+                description: emailResult.error || "Не удалось отправить результаты на email",
+                variant: "destructive",
+              });
+            }
+          } catch (emailError: any) {
+            console.error('❌ Critical email error:', emailError);
+            setEmailState('error');
+            setErrorDetails(`Критическая ошибка: ${emailError.message || 'Неизвестная ошибка'}`);
+            
+            toast({
+              title: "Критическая ошибка email",
+              description: "Произошла критическая ошибка при отправке email",
+              variant: "destructive",
+            });
+          }
+          
+        } else {
+          console.error('❌ Failed to save candidate');
+          setSavingState('error');
+          setErrorDetails('Не удалось сохранить данные в базу. Проверьте подключение к интернету и попробуйте еще раз.');
+          
+          toast({
+            title: "Ошибка сохранения",
+            description: "Не удалось сохранить ваши результаты. Попробуйте еще раз.",
+            variant: "destructive",
+          });
+        }
+        
+      } catch (saveError: any) {
+        console.error('❌ Critical save error:', saveError);
+        setSavingState('error');
+        setErrorDetails(`Критическая ошибка сохранения: ${saveError.message || 'Неизвестная ошибка'}`);
+        
+        toast({
+          title: "Критическая ошибка",
+          description: "Произошла критическая ошибка при сохранении данных",
+          variant: "destructive",
+        });
+      }
+    };
 
-  const handleGoHome = () => {
-    // Принудительно перезагружаем страницу для возврата на главную
-    window.location.href = '/';
+    saveAndSendEmail();
+  }, [candidate, completionTime, toast]);
+
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return 'text-green-600';
+    if (score >= 6) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
-  const getEmailStatusIcon = () => {
-    switch (emailStatus) {
+  const getScoreDescription = (score: number) => {
+    if (score >= 8) return t('results.excellent');
+    if (score >= 6) return t('results.good');
+    return t('results.needsImprovement');
+  };
+
+  const StatusIcon = ({ state }: { state: 'idle' | 'saving' | 'saved' | 'error' | 'sending' | 'sent' }) => {
+    switch (state) {
+      case 'saving':
       case 'sending':
-        return <Clock className="w-5 h-5 animate-spin" />;
+        return <Loader2 className="w-5 h-5 animate-spin text-blue-600" />;
+      case 'saved':
       case 'sent':
-        return <Mail className="w-5 h-5" />;
-      case 'failed':
-        return <AlertCircle className="w-5 h-5" />;
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'error':
+        return <AlertCircle className="w-5 h-5 text-red-600" />;
+      default:
+        return <div className="w-5 h-5 bg-gray-300 rounded-full" />;
     }
   };
 
-  const getEmailStatusText = () => {
-    switch (emailStatus) {
+  const getStatusText = (state: 'idle' | 'saving' | 'saved' | 'error' | 'sending' | 'sent') => {
+    switch (state) {
+      case 'saving':
+        return 'Сохранение данных...';
+      case 'saved':
+        return 'Данные сохранены';
       case 'sending':
-        return 'Отправляем результаты на почту...';
+        return 'Отправка email...';
       case 'sent':
-        return 'Результаты отправлены на вашу почту';
-      case 'failed':
-        return 'Не удалось отправить письмо';
-    }
-  };
-
-  const getEmailStatusColor = () => {
-    switch (emailStatus) {
-      case 'sending':
-        return 'text-blue-600';
-      case 'sent':
-        return 'text-green-600';
-      case 'failed':
-        return 'text-red-600';
-    }
-  };
-
-  const getEmailBgColor = () => {
-    switch (emailStatus) {
-      case 'sending':
-        return 'bg-blue-50';
-      case 'sent':
-        return 'bg-green-50';
-      case 'failed':
-        return 'bg-red-50';
+        return 'Email отправлен';
+      case 'error':
+        return 'Ошибка';
+      default:
+        return 'Ожидание';
     }
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-2xl mx-auto p-6">
       <Card className="text-center">
         <CardHeader>
-          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+          <div className="flex justify-center mb-4">
+            <CheckCircle className="w-16 h-16 text-green-600" />
           </div>
-          <CardTitle className="text-2xl text-green-600">{t('thanks.title')}</CardTitle>
-          <p className="text-gray-600">{t('thanks.subtitle')}</p>
+          <CardTitle className="text-2xl text-green-600">
+            {t('thankYou.title')}
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600 mb-2">
-              {t('thanks.score')} {score} {t('thanks.outOf')}
-            </div>
-          </div>
-          
-          <p className="text-gray-600">
-            {candidateName}, {t('thanks.message')}
+        
+        <CardContent className="space-y-6">
+          <p className="text-lg text-gray-700">
+            {t('thankYou.message')}
           </p>
-          
-          <div className={`${getEmailBgColor()} p-4 rounded-lg`}>
-            <div className={`flex items-center justify-center gap-2 ${getEmailStatusColor()} mb-2`}>
-              {getEmailStatusIcon()}
-              <span className="font-medium">{getEmailStatusText()}</span>
+
+          <div className="bg-blue-50 p-6 rounded-lg">
+            <h3 className="text-xl font-semibold mb-2">{t('results.yourScore')}</h3>
+            <div className={`text-4xl font-bold ${getScoreColor(candidate.score)}`}>
+              {candidate.score}/10
             </div>
-            {emailStatus === 'sent' && (
-              <p className="text-sm text-gray-600">
-                {t('thanks.reportGenerated')}
-              </p>
+            <p className="text-gray-600 mt-2">
+              {getScoreDescription(candidate.score)}
+            </p>
+          </div>
+
+          {/* Status indicators */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="font-semibold mb-3 text-gray-700">Статус обработки:</h4>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-white rounded border">
+                <div className="flex items-center gap-3">
+                  <Database className="w-5 h-5 text-gray-600" />
+                  <span>Сохранение в базу данных</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <StatusIcon state={savingState} />
+                  <span className="text-sm font-medium">{getStatusText(savingState)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-white rounded border">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-gray-600" />
+                  <span>Отправка результатов на email</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <StatusIcon state={emailState} />
+                  <span className="text-sm font-medium">{getStatusText(emailState)}</span>
+                </div>
+              </div>
+            </div>
+
+            {errorDetails && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
+                <p className="text-sm text-red-700">
+                  <strong>Детали ошибки:</strong> {errorDetails}
+                </p>
+              </div>
             )}
-            {emailStatus === 'failed' && (
-              <p className="text-sm text-gray-600">
-                Проверьте результаты в личном кабинете администратора
+          </div>
+
+          <div className="text-sm text-gray-600 bg-gray-50 p-4 rounded">
+            <p className="mb-2">
+              <strong>Трек:</strong> {candidate.track === 'sales' ? 'Отдел продаж' : 
+                                    candidate.track === 'academy' ? 'Внутренняя академия' : 'Креативный отдел'}
+            </p>
+            <p className="mb-2">
+              <strong>Email:</strong> {candidate.email}
+            </p>
+            {completionTime && (
+              <p>
+                <strong>Время прохождения:</strong> {Math.round(completionTime / 60)} мин {completionTime % 60} сек
               </p>
             )}
           </div>
 
           <Button 
-            onClick={handleGoHome}
-            className="w-full mt-6 bg-blue-600 hover:bg-blue-700"
+            onClick={onStartNew} 
+            className="w-full bg-blue-600 hover:bg-blue-700"
+            size="lg"
           >
-            <Home className="w-4 h-4 mr-2" />
-            {t('thanks.backHome')}
+            {t('thankYou.startNew')}
           </Button>
-
-          <div className="text-sm text-gray-500 mt-6">
-            <p>{t('thanks.assessmentId')}: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-          </div>
         </CardContent>
       </Card>
     </div>
