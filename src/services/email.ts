@@ -1,5 +1,6 @@
 
 import { Candidate } from '@/types/assessment';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EmailData {
   to: string;
@@ -10,39 +11,24 @@ interface EmailData {
 
 export const sendEmailToCandidate = async (candidate: Candidate): Promise<boolean> => {
   try {
-    // Генерируем простые рекомендации на основе результатов
-    const recommendations = generateRecommendations(candidate.score, candidate.moduleScores);
+    console.log('Sending email via edge function to:', candidate.email);
     
-    // Имитация отправки письма (в реальном проекте здесь был бы API вызов)
-    console.log('=== EMAIL SENDING SIMULATION ===');
-    console.log('To:', candidate.email);
-    console.log('Name:', candidate.name);
-    console.log('Score:', candidate.score);
-    console.log('Track:', candidate.track);
-    console.log('Recommendations:', recommendations);
-    console.log('Email content would be:');
-    console.log(`
-Subject: Ваши результаты тестирования - Web3 Media Agency
+    const { data, error } = await supabase.functions.invoke('send-candidate-email', {
+      body: {
+        name: candidate.name,
+        email: candidate.email,
+        score: candidate.score,
+        track: candidate.track,
+        moduleScores: candidate.moduleScores
+      }
+    });
 
-Здравствуйте, ${candidate.name}!
+    if (error) {
+      console.error('Error calling edge function:', error);
+      return false;
+    }
 
-Спасибо за прохождение нашего тестирования.
-
-Ваш результат: ${candidate.score}/10
-
-Рекомендации:
-${recommendations.map(rec => `• ${rec}`).join('\n')}
-
-С уважением,
-Команда Web3 Media Agency
-    `);
-    console.log('=== END EMAIL SIMULATION ===');
-
-    // Симуляция задержки отправки
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // В данный момент это только симуляция - письма не отправляются реально
-    // Для реальной отправки нужно подключить EmailJS, SendGrid или другой сервис
+    console.log('Email sent successfully:', data);
     return true;
   } catch (error) {
     console.error('Error sending email:', error);
@@ -50,6 +36,7 @@ ${recommendations.map(rec => `• ${rec}`).join('\n')}
   }
 };
 
+// Оставляем функцию для генерации рекомендаций для локального использования
 const generateRecommendations = (score: number, moduleScores: any): string[] => {
   const recommendations: string[] = [];
 
