@@ -150,7 +150,7 @@ const Admin = () => {
               <div className="text-2xl font-bold text-red-600">
                 {candidates.filter(c => c.score < 6).length}
               </div>
-              <div className="text-gray-600">Low Scores (<6)</div>
+              <div className="text-gray-600">Low Scores (&lt;6)</div>
             </CardContent>
           </Card>
         </div>
