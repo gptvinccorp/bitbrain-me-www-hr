@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -93,10 +94,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Attempting to send email via Resend...');
 
-    // ВАЖНО: Замените YOUR_DOMAIN.com на ваш верифицированный домен
-    // Например: "Web3 Media Agency <noreply@yourdomain.com>"
     const emailResponse = await resend.emails.send({
-      from: "Web3 Media Agency <noreply@YOUR_DOMAIN.com>", // ← ЗАМЕНИТЕ НА ВАШ ДОМЕН
+      from: "Web3 Media Agency <noreply@bitbrain.me>",
       to: [email],
       subject: "Ваши результаты тестирования - Web3 Media Agency",
       html: `
