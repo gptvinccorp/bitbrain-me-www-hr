@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Users, Target, Palette, ArrowRight } from 'lucide-react';
@@ -27,7 +26,7 @@ const Index = () => {
   const { toast } = useToast();
   const [currentState, setCurrentState] = useState<AppState>('landing');
   const [registrationData, setRegistrationData] = useState<RegistrationData | null>(null);
-  const [finalScore, setFinalScore] = useState<number>(0);
+  const [completedCandidate, setCompletedCandidate] = useState<Candidate | null>(null);
   const [testStartTime, setTestStartTime] = useState<Date | null>(null);
 
   const handleStartAssessment = () => {
@@ -49,7 +48,6 @@ const Index = () => {
       
       // Важно: теперь calculateScore асинхронная функция
       const { totalScore, moduleScores } = await calculateScore(answers);
-      setFinalScore(totalScore);
 
       // Create candidate data
       const candidate: Candidate = {
@@ -65,48 +63,24 @@ const Index = () => {
         completionTime
       };
 
-      console.log('Saving candidate to database:', candidate);
+      // Store the completed candidate for the ThankYou component
+      setCompletedCandidate(candidate);
 
-      // Store candidate data using Supabase storage service
-      try {
-        const success = await supabaseStorageService.saveCandidate(candidate, completionTime);
-        if (success) {
-          console.log('Candidate assessment completed and saved to Supabase:', candidate);
-          toast({
-            title: "Результаты сохранены",
-            description: "Ваши результаты успешно сохранены в базе данных",
-          });
-        } else {
-          console.error('Failed to save candidate to Supabase');
-          toast({
-            title: "Ошибка сохранения",
-            description: "Не удалось сохранить результаты. Обратитесь к администратору.",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error('Error saving candidate:', error);
-        toast({
-          title: "Ошибка",
-          description: "Произошла ошибка при сохранении результатов",
-          variant: "destructive",
-        });
-      }
+      console.log('Candidate assessment completed:', candidate);
       
       // Generate recommendations
       const recommendations = generateRecommendations(moduleScores);
       console.log('HR Recommendations:', recommendations);
 
-      // Автоматически отправляем письмо кандидату
-      try {
-        await sendEmailToCandidate(candidate);
-        console.log('Email sent to candidate successfully');
-      } catch (error) {
-        console.error('Failed to send email to candidate:', error);
-      }
-
       setCurrentState('complete');
     }
+  };
+
+  const handleStartNew = () => {
+    setCurrentState('landing');
+    setRegistrationData(null);
+    setCompletedCandidate(null);
+    setTestStartTime(null);
   };
 
   if (currentState === 'registration') {
@@ -134,15 +108,16 @@ const Index = () => {
     );
   }
 
-  if (currentState === 'complete' && registrationData) {
+  if (currentState === 'complete' && completedCandidate) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
         <div className="absolute top-4 right-4">
           <LanguageSelector />
         </div>
         <ThankYou 
-          candidateName={registrationData.name} 
-          score={finalScore}
+          candidate={completedCandidate}
+          completionTime={completedCandidate.completionTime}
+          onStartNew={handleStartNew}
         />
       </div>
     );
