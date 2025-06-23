@@ -1,4 +1,3 @@
-
 export const translations = {
   ru: {
     header: {
@@ -57,6 +56,12 @@ export const translations = {
       date: 'Дата',
       export: 'Экспорт',
       details: 'Детали'
+    },
+    results: {
+      yourScore: 'Ваш результат',
+      excellent: 'Отличные результаты!',
+      good: 'Хорошие результаты',
+      needsImprovement: 'Есть области для улучшения'
     },
     q1: {
       title: 'Логическая последовательность',
@@ -163,16 +168,38 @@ export const translations = {
       trackRequired: 'Выберите направление',
       consentRequired: 'Необходимо согласие на обработку данных'
     },
-    thanks: {
+    thankYou: {
       title: 'Спасибо за прохождение теста!',
-      subtitle: 'Ваши результаты обработаны',
-      score: 'Ваш результат:',
-      outOf: 'из 10',
       message: 'Мы рассмотрим ваши результаты и свяжемся с вами в ближайшее время.',
-      backHome: 'Вернуться на главную',
-      email: 'Результаты отправлены на email',
-      reportGenerated: 'Отчет сформирован',
-      assessmentId: 'ID оценки'
+      startNew: 'Пройти новый тест',
+      processingStatus: 'Статус обработки',
+      savingToDatabase: 'Сохранение в базу данных',
+      sendingToEmail: 'Отправка результатов на email',
+      savingData: 'Сохранение данных...',
+      dataSaved: 'Данные сохранены',
+      dataSavedDesc: 'Ваши результаты успешно сохранены в базе данных',
+      sendingEmail: 'Отправка email...',
+      emailSent: 'Email отправлен',
+      emailSentDesc: 'Результаты отправлены на вашу электронную почту',
+      error: 'Ошибка',
+      waiting: 'Ожидание',
+      errorDetails: 'Детали ошибки',
+      track: 'Трек',
+      completionTime: 'Время прохождения',
+      minutes: 'мин',
+      seconds: 'сек',
+      emailError: 'Неизвестная ошибка отправки email',
+      emailErrorTitle: 'Ошибка отправки email',
+      criticalError: 'Критическая ошибка',
+      unknownError: 'Неизвестная ошибка',
+      criticalEmailError: 'Критическая ошибка email',
+      criticalEmailErrorDesc: 'Произошла критическая ошибка при отправке email',
+      saveError: 'Не удалось сохранить данные в базу. Проверьте подключение к интернету и попробуйте еще раз.',
+      saveErrorTitle: 'Ошибка сохранения',
+      saveErrorDesc: 'Не удалось сохранить ваши результаты. Попробуйте еще раз.',
+      criticalSaveError: 'Критическая ошибка сохранения',
+      criticalErrorTitle: 'Критическая ошибка',
+      criticalErrorDesc: 'Произошла критическая ошибка при сохранении данных'
     },
     errors: {
       loadingQuestions: 'Не удалось загрузить вопросы теста',
@@ -239,6 +266,12 @@ export const translations = {
       date: 'Date',
       export: 'Export',
       details: 'Details'
+    },
+    results: {
+      yourScore: 'Your Score',
+      excellent: 'Excellent results!',
+      good: 'Good results',
+      needsImprovement: 'Areas for improvement'
     },
     q1: {
       title: 'Logical Sequence',
@@ -345,16 +378,38 @@ export const translations = {
       trackRequired: 'Please select a track',
       consentRequired: 'Consent to data processing is required'
     },
-    thanks: {
+    thankYou: {
       title: 'Thank You for Taking the Test!',
-      subtitle: 'Your results have been processed',
-      score: 'Your score:',
-      outOf: 'out of 10',
       message: 'We will review your results and contact you soon.',
-      backHome: 'Back to Home',
-      email: 'Results sent to email',
-      reportGenerated: 'Report generated',
-      assessmentId: 'Assessment ID'
+      startNew: 'Take New Test',
+      processingStatus: 'Processing Status',
+      savingToDatabase: 'Saving to Database',
+      sendingToEmail: 'Sending Results to Email',
+      savingData: 'Saving data...',
+      dataSaved: 'Data Saved',
+      dataSavedDesc: 'Your results have been successfully saved to the database',
+      sendingEmail: 'Sending email...',
+      emailSent: 'Email Sent',
+      emailSentDesc: 'Results have been sent to your email',
+      error: 'Error',
+      waiting: 'Waiting',
+      errorDetails: 'Error Details',
+      track: 'Track',
+      completionTime: 'Completion Time',
+      minutes: 'min',
+      seconds: 'sec',
+      emailError: 'Unknown email sending error',
+      emailErrorTitle: 'Email Sending Error',
+      criticalError: 'Critical Error',
+      unknownError: 'Unknown Error',
+      criticalEmailError: 'Critical Email Error',
+      criticalEmailErrorDesc: 'A critical error occurred while sending email',
+      saveError: 'Failed to save data to database. Check your internet connection and try again.',
+      saveErrorTitle: 'Save Error',
+      saveErrorDesc: 'Failed to save your results. Please try again.',
+      criticalSaveError: 'Critical Save Error',
+      criticalErrorTitle: 'Critical Error',
+      criticalErrorDesc: 'A critical error occurred while saving data'
     },
     errors: {
       loadingQuestions: 'Failed to load test questions',

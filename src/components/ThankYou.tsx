@@ -39,8 +39,8 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
           setSavingState('saved');
           
           toast({
-            title: "Данные сохранены",
-            description: "Ваши результаты успешно сохранены в базе данных",
+            title: t('thankYou.dataSaved'),
+            description: t('thankYou.dataSavedDesc'),
           });
 
           // Step 2: Send email (only if saving was successful)
@@ -55,28 +55,28 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
               setEmailState('sent');
               
               toast({
-                title: "Email отправлен",
-                description: "Результаты отправлены на вашу электронную почту",
+                title: t('thankYou.emailSent'),
+                description: t('thankYou.emailSentDesc'),
               });
             } else {
               console.error('❌ Email sending failed:', emailResult.error);
               setEmailState('error');
-              setErrorDetails(emailResult.error || 'Неизвестная ошибка отправки email');
+              setErrorDetails(emailResult.error || t('thankYou.emailError'));
               
               toast({
-                title: "Ошибка отправки email",
-                description: emailResult.error || "Не удалось отправить результаты на email",
+                title: t('thankYou.emailErrorTitle'),
+                description: emailResult.error || t('thankYou.emailError'),
                 variant: "destructive",
               });
             }
           } catch (emailError: any) {
             console.error('❌ Critical email error:', emailError);
             setEmailState('error');
-            setErrorDetails(`Критическая ошибка: ${emailError.message || 'Неизвестная ошибка'}`);
+            setErrorDetails(`${t('thankYou.criticalError')}: ${emailError.message || t('thankYou.unknownError')}`);
             
             toast({
-              title: "Критическая ошибка email",
-              description: "Произошла критическая ошибка при отправке email",
+              title: t('thankYou.criticalEmailError'),
+              description: t('thankYou.criticalEmailErrorDesc'),
               variant: "destructive",
             });
           }
@@ -84,11 +84,11 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
         } else {
           console.error('❌ Failed to save candidate');
           setSavingState('error');
-          setErrorDetails('Не удалось сохранить данные в базу. Проверьте подключение к интернету и попробуйте еще раз.');
+          setErrorDetails(t('thankYou.saveError'));
           
           toast({
-            title: "Ошибка сохранения",
-            description: "Не удалось сохранить ваши результаты. Попробуйте еще раз.",
+            title: t('thankYou.saveErrorTitle'),
+            description: t('thankYou.saveErrorDesc'),
             variant: "destructive",
           });
         }
@@ -96,18 +96,18 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
       } catch (saveError: any) {
         console.error('❌ Critical save error:', saveError);
         setSavingState('error');
-        setErrorDetails(`Критическая ошибка сохранения: ${saveError.message || 'Неизвестная ошибка'}`);
+        setErrorDetails(`${t('thankYou.criticalSaveError')}: ${saveError.message || t('thankYou.unknownError')}`);
         
         toast({
-          title: "Критическая ошибка",
-          description: "Произошла критическая ошибка при сохранении данных",
+          title: t('thankYou.criticalErrorTitle'),
+          description: t('thankYou.criticalErrorDesc'),
           variant: "destructive",
         });
       }
     };
 
     saveAndSendEmail();
-  }, [candidate, completionTime, toast]);
+  }, [candidate, completionTime, toast, t]);
 
   const getScoreColor = (score: number) => {
     if (score >= 8) return 'text-green-600';
@@ -139,17 +139,30 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
   const getStatusText = (state: 'idle' | 'saving' | 'saved' | 'error' | 'sending' | 'sent') => {
     switch (state) {
       case 'saving':
-        return 'Сохранение данных...';
+        return t('thankYou.savingData');
       case 'saved':
-        return 'Данные сохранены';
+        return t('thankYou.dataSaved');
       case 'sending':
-        return 'Отправка email...';
+        return t('thankYou.sendingEmail');
       case 'sent':
-        return 'Email отправлен';
+        return t('thankYou.emailSent');
       case 'error':
-        return 'Ошибка';
+        return t('thankYou.error');
       default:
-        return 'Ожидание';
+        return t('thankYou.waiting');
+    }
+  };
+
+  const getTrackName = (track: string) => {
+    switch (track) {
+      case 'sales':
+        return t('track.sales');
+      case 'academy':
+        return t('track.academy');
+      case 'creative':
+        return t('track.creative');
+      default:
+        return track;
     }
   };
 
@@ -182,13 +195,13 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
 
           {/* Status indicators */}
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-semibold mb-3 text-gray-700">Статус обработки:</h4>
+            <h4 className="font-semibold mb-3 text-gray-700">{t('thankYou.processingStatus')}:</h4>
             
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-white rounded border">
                 <div className="flex items-center gap-3">
                   <Database className="w-5 h-5 text-gray-600" />
-                  <span>Сохранение в базу данных</span>
+                  <span>{t('thankYou.savingToDatabase')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <StatusIcon state={savingState} />
@@ -199,7 +212,7 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
               <div className="flex items-center justify-between p-3 bg-white rounded border">
                 <div className="flex items-center gap-3">
                   <Mail className="w-5 h-5 text-gray-600" />
-                  <span>Отправка результатов на email</span>
+                  <span>{t('thankYou.sendingToEmail')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <StatusIcon state={emailState} />
@@ -211,7 +224,7 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
             {errorDetails && (
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
                 <p className="text-sm text-red-700">
-                  <strong>Детали ошибки:</strong> {errorDetails}
+                  <strong>{t('thankYou.errorDetails')}:</strong> {errorDetails}
                 </p>
               </div>
             )}
@@ -219,15 +232,14 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
 
           <div className="text-sm text-gray-600 bg-gray-50 p-4 rounded">
             <p className="mb-2">
-              <strong>Трек:</strong> {candidate.track === 'sales' ? 'Отдел продаж' : 
-                                    candidate.track === 'academy' ? 'Внутренняя академия' : 'Креативный отдел'}
+              <strong>{t('thankYou.track')}:</strong> {getTrackName(candidate.track)}
             </p>
             <p className="mb-2">
               <strong>Email:</strong> {candidate.email}
             </p>
             {completionTime && (
               <p>
-                <strong>Время прохождения:</strong> {Math.round(completionTime / 60)} мин {completionTime % 60} сек
+                <strong>{t('thankYou.completionTime')}:</strong> {Math.round(completionTime / 60)} {t('thankYou.minutes')} {completionTime % 60} {t('thankYou.seconds')}
               </p>
             )}
           </div>
