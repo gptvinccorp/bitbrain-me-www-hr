@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Question } from '@/types/assessment';
+import { Question, QuestionOption } from '@/types/assessment';
 
 class QuestionsService {
   async getAllQuestions(): Promise<Question[]> {
@@ -15,14 +15,14 @@ class QuestionsService {
         return [];
       }
 
-      // Convert database format to app format
+      // Convert database format to app format with proper type conversion
       return (data || []).map(item => ({
         id: item.question_id,
         module: item.module,
         type: item.type as 'mcq' | 'likert' | 'image',
         titleKey: item.title_key,
         textKey: item.text_key,
-        options: Array.isArray(item.options) ? item.options : [],
+        options: Array.isArray(item.options) ? (item.options as QuestionOption[]) : [],
         correctAnswer: item.correct_answer || undefined,
         maxScore: item.max_score,
         imageA: item.image_a_url || undefined,
@@ -53,7 +53,7 @@ class QuestionsService {
         type: item.type as 'mcq' | 'likert' | 'image',
         titleKey: item.title_key,
         textKey: item.text_key,
-        options: Array.isArray(item.options) ? item.options : [],
+        options: Array.isArray(item.options) ? (item.options as QuestionOption[]) : [],
         correctAnswer: item.correct_answer || undefined,
         maxScore: item.max_score,
         imageA: item.image_a_url || undefined,
