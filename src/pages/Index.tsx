@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Users, Target, Palette, ArrowRight } from 'lucide-react';
@@ -9,7 +10,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Answer, Candidate } from '@/types/assessment';
 import { calculateScore, generateRecommendations } from '@/utils/scoring';
 import { supabaseStorageService } from '@/services/supabaseStorage';
-import { sendEmailToCandidate } from '@/services/email';
 import { useToast } from '@/hooks/use-toast';
 
 type AppState = 'landing' | 'registration' | 'test' | 'complete';
@@ -41,13 +41,16 @@ const Index = () => {
 
   const handleTestComplete = async (answers: Answer[]) => {
     if (registrationData && testStartTime) {
-      console.log('Test completed, processing results...');
+      console.log('=== TEST COMPLETION STARTED ===');
+      console.log('Processing test results for:', registrationData.name);
       
       // Calculate completion time in seconds
       const completionTime = Math.round((new Date().getTime() - testStartTime.getTime()) / 1000);
+      console.log('Test completion time:', completionTime, 'seconds');
       
-      // Важно: теперь calculateScore асинхронная функция
+      // Calculate score
       const { totalScore, moduleScores } = await calculateScore(answers);
+      console.log('Calculated score:', totalScore, 'Module scores:', moduleScores);
 
       // Create candidate data
       const candidate: Candidate = {
@@ -63,20 +66,30 @@ const Index = () => {
         completionTime
       };
 
+      console.log('Created candidate object:', candidate);
+
       // Store the completed candidate for the ThankYou component
+      // The ThankYou component will handle saving to database and sending email
       setCompletedCandidate(candidate);
-
-      console.log('Candidate assessment completed:', candidate);
       
-      // Generate recommendations
+      // Generate recommendations for logging
       const recommendations = generateRecommendations(moduleScores);
-      console.log('HR Recommendations:', recommendations);
+      console.log('Generated recommendations:', recommendations);
 
+      console.log('=== MOVING TO COMPLETION SCREEN ===');
       setCurrentState('complete');
+    } else {
+      console.error('Missing registration data or test start time');
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обработать результаты теста. Попробуйте еще раз.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleStartNew = () => {
+    console.log('Starting new assessment');
     setCurrentState('landing');
     setRegistrationData(null);
     setCompletedCandidate(null);
