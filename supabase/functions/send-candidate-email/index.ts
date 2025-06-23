@@ -32,7 +32,6 @@ const generateRecommendations = (score: number, moduleScores: any): string[] => 
     recommendations.push('Рекомендуем пройти дополнительное обучение перед повторной попыткой.');
   }
 
-  // Добавляем специфичные рекомендации по модулям
   if (moduleScores) {
     Object.entries(moduleScores).forEach(([module, score]: [string, any]) => {
       if (score < 5) {
@@ -66,11 +65,10 @@ const generateRecommendations = (score: number, moduleScores: any): string[] => 
     });
   }
 
-  return recommendations.slice(0, 4); // Ограничиваем количество рекомендаций
+  return recommendations.slice(0, 4);
 };
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -173,12 +171,13 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("=== RESEND ERROR ===");
       console.error("Error details:", emailResponse.error);
       
+      // Возвращаем структурированный ответ с ошибкой
       return new Response(JSON.stringify({ 
         success: false, 
         error: emailResponse.error,
-        details: "Resend API returned an error. Check logs for details."
+        details: "Resend API returned an error"
       }), {
-        status: 400,
+        status: 200, // Возвращаем 200, чтобы клиент мог обработать ошибку
         headers: {
           "Content-Type": "application/json",
           ...corsHeaders,
@@ -211,10 +210,10 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ 
         success: false,
         error: error.message,
-        details: "Edge function encountered an error. Check logs for details."
+        details: "Edge function encountered an error"
       }),
       {
-        status: 500,
+        status: 200, // Возвращаем 200, чтобы клиент мог обработать ошибку
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );

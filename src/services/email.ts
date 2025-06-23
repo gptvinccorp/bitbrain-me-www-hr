@@ -26,29 +26,41 @@ export const sendEmailToCandidate = async (candidate: Candidate): Promise<{ succ
       };
     }
 
-    if (data && !data.success) {
+    // Проверяем статус ответа от edge function
+    if (data && data.success === false) {
       console.error('Edge function вернула ошибку:', data.error);
       
       // Проверяем на специфичные ошибки Resend
       if (data.error && typeof data.error === 'object') {
-        const errorMessage = data.error.message || JSON.stringify(data.error);
+        const errorMessage = data.error.message || data.error.error || JSON.stringify(data.error);
         
-        if (errorMessage.includes('You can only send testing emails')) {
+        if (errorMessage.includes('You can only send testing emails') || 
+            errorMessage.includes('403') ||
+            (data.error.statusCode && data.error.statusCode === 403)) {
           return { 
             success: false, 
-            error: 'Ошибка Resend: Для отправки на другие адреса нужно верифицировать домен на resend.com/domains'
+            error: 'Ограничение Resend: Для отправки на другие адреса нужно верифицировать домен на resend.com/domains'
           };
         }
         
         return { 
           success: false, 
-          error: `Ошибка Resend: ${errorMessage}`
+          error: `Ошибка отправки: ${errorMessage}`
         };
       }
       
       return { 
         success: false, 
         error: data.error || 'Неизвестная ошибка отправки'
+      };
+    }
+
+    // Если нет явного успеха, но и нет ошибок, считаем успешным
+    if (!data || data.success !== true) {
+      console.warn('Edge function вернула неожиданный ответ:', data);
+      return { 
+        success: false, 
+        error: 'Неожиданный ответ от сервера отправки email'
       };
     }
 
@@ -64,7 +76,7 @@ export const sendEmailToCandidate = async (candidate: Candidate): Promise<{ succ
   }
 };
 
-// Оставляем функцию для генерации рекомендаций для локального использования
+// Функция для генерации рекомендаций (оставляем для локального использования)
 const generateRecommendations = (score: number, moduleScores: any): string[] => {
   const recommendations: string[] = [];
 
@@ -98,5 +110,5 @@ const generateRecommendations = (score: number, moduleScores: any): string[] => 
     });
   }
 
-  return recommendations.slice(0, 3); // Ограничиваем количество рекомендаций
+  return recommendations.slice(0, 3);
 };
