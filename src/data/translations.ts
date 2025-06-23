@@ -1,4 +1,3 @@
-
 export const translations = {
   ru: {
     header: {
@@ -28,6 +27,14 @@ export const translations = {
       results: 'Мгновенные результаты',
       privacy: 'Полная конфиденциальность'
     },
+    form: {
+      name: 'Полное имя',
+      email: 'Email адрес',
+      phone: 'Номер телефона',
+      track: 'Выберите направление',
+      selectTrack: 'Выберите подходящий трек',
+      submit: 'Начать тест'
+    },
     test: {
       title: 'Тестирование',
       timeRemaining: 'Осталось времени',
@@ -36,6 +43,14 @@ export const translations = {
       previous: 'Назад',
       next: 'Далее',
       submit: 'Завершить тест'
+    },
+    admin: {
+      title: 'Панель администратора',
+      candidates: 'Кандидаты',
+      score: 'Результат',
+      date: 'Дата',
+      export: 'Экспорт',
+      details: 'Детали'
     },
     q1: {
       title: 'Логическая последовательность',
@@ -174,6 +189,14 @@ export const translations = {
       results: 'Instant results',
       privacy: 'Complete confidentiality'
     },
+    form: {
+      name: 'Full Name',
+      email: 'Email Address',
+      phone: 'Phone Number',
+      track: 'Choose Track',
+      selectTrack: 'Select appropriate track',
+      submit: 'Start Test'
+    },
     test: {
       title: 'Assessment',
       timeRemaining: 'Time remaining',
@@ -182,6 +205,14 @@ export const translations = {
       previous: 'Previous',
       next: 'Next',
       submit: 'Submit Test'
+    },
+    admin: {
+      title: 'Admin Panel',
+      candidates: 'Candidates',
+      score: 'Score',
+      date: 'Date',
+      export: 'Export',
+      details: 'Details'
     },
     q1: {
       title: 'Logical Sequence',
