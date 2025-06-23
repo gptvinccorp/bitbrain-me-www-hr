@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Users, Target, Palette, ArrowRight } from 'lucide-react';
@@ -8,7 +9,7 @@ import ThankYou from '@/components/ThankYou';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Answer, Candidate } from '@/types/assessment';
 import { calculateScore, generateRecommendations } from '@/utils/scoring';
-import { storageService } from '@/services/storage';
+import { supabaseStorageService } from '@/services/supabaseStorage';
 import { sendEmailToCandidate } from '@/services/email';
 
 type AppState = 'landing' | 'registration' | 'test' | 'complete';
@@ -53,9 +54,13 @@ const Index = () => {
         submittedAt: new Date()
       };
 
-      // Store candidate data using storage service
-      storageService.saveCandidate(candidate);
-      console.log('Candidate assessment completed:', candidate);
+      // Store candidate data using Supabase storage service
+      const success = await supabaseStorageService.saveCandidate(candidate);
+      if (success) {
+        console.log('Candidate assessment completed and saved to Supabase:', candidate);
+      } else {
+        console.error('Failed to save candidate to Supabase');
+      }
       
       // Generate recommendations
       const recommendations = generateRecommendations(moduleScores);

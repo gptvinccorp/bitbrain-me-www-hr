@@ -1,15 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, Eye, Filter, Trash2, Mail, LogOut, Home } from 'lucide-react';
+import { Download, Eye, Filter, Trash2, Mail, LogOut, Home, RefreshCw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import LanguageSelector from '@/components/LanguageSelector';
 import { Candidate } from '@/types/assessment';
-import { storageService } from '@/services/storage';
+import { supabaseStorageService } from '@/services/supabaseStorage';
 import { sendEmailToCandidate } from '@/services/email';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Admin = () => {
   const { t } = useLanguage();
@@ -18,6 +20,7 @@ const Admin = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedTrack, setSelectedTrack] = useState<string>('all');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Проверка аутентификации
   useEffect(() => {
@@ -29,20 +32,65 @@ const Admin = () => {
     }
   }, [navigate]);
 
-  // Load real candidates from storage
-  useEffect(() => {
+  // Load candidates from Supabase
+  const loadCandidates = async () => {
     if (!isAuthenticated) return;
     
-    const loadCandidates = () => {
-      const realCandidates = storageService.getAllCandidates();
-      setCandidates(realCandidates);
-    };
-    
+    setLoading(true);
+    try {
+      const candidatesData = await supabaseStorageService.getAllCandidates();
+      setCandidates(candidatesData);
+    } catch (error) {
+      console.error('Error loading candidates:', error);
+      toast({
+        title: "Ошибка загрузки",
+        description: "Не удалось загрузить данные кандидатов",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadCandidates();
-    
-    // Refresh every 5 seconds to catch new submissions
-    const interval = setInterval(loadCandidates, 5000);
-    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  // Set up real-time subscription
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const channel = supabase
+      .channel('candidates-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'candidates'
+        },
+        () => {
+          console.log('New candidate added, refreshing data...');
+          loadCandidates();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'candidates'
+        },
+        () => {
+          console.log('Candidate deleted, refreshing data...');
+          loadCandidates();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isAuthenticated]);
 
   const handleLogout = () => {
@@ -102,17 +150,41 @@ const Admin = () => {
     a.click();
   };
 
-  const handleDeleteCandidate = (candidateId: string) => {
+  const handleDeleteCandidate = async (candidateId: string) => {
     if (confirm('Are you sure you want to delete this candidate?')) {
-      storageService.deleteCandidateById(candidateId);
-      setCandidates(candidates.filter(c => c.id !== candidateId));
+      const success = await supabaseStorageService.deleteCandidateById(candidateId);
+      if (success) {
+        setCandidates(candidates.filter(c => c.id !== candidateId));
+        toast({
+          title: "Кандидат удален",
+          description: "Данные кандидата успешно удалены",
+        });
+      } else {
+        toast({
+          title: "Ошибка удаления",
+          description: "Не удалось удалить кандидата",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  const clearAllData = () => {
+  const clearAllData = async () => {
     if (confirm('Are you sure you want to delete ALL candidate data? This cannot be undone.')) {
-      storageService.clearAllCandidates();
-      setCandidates([]);
+      const success = await supabaseStorageService.clearAllCandidates();
+      if (success) {
+        setCandidates([]);
+        toast({
+          title: "Все данные удалены",
+          description: "Все данные кандидатов успешно удалены",
+        });
+      } else {
+        toast({
+          title: "Ошибка удаления",
+          description: "Не удалось удалить все данные",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -129,6 +201,15 @@ const Admin = () => {
             <h1 className="text-2xl font-bold text-gray-900">{t('admin.title')}</h1>
             <div className="flex items-center gap-2">
               <LanguageSelector />
+              <Button 
+                variant="outline" 
+                onClick={loadCandidates}
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Обновить
+              </Button>
               <Button variant="outline" onClick={() => navigate('/')} className="flex items-center gap-2">
                 <Home className="w-4 h-4" />
                 На главную
@@ -157,6 +238,9 @@ const Admin = () => {
               <option value="academy">{t('track.academy')}</option>
               <option value="creative">{t('track.creative')}</option>
             </select>
+            <div className="text-sm text-gray-600">
+              Данные обновляются в реальном времени из Supabase
+            </div>
           </div>
           
           <div className="flex gap-2">
@@ -214,9 +298,15 @@ const Admin = () => {
             <CardTitle>{t('admin.candidates')} ({filteredCandidates.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            {candidates.length === 0 ? (
+            {loading ? (
               <div className="text-center py-8 text-gray-500">
-                <p>No candidates yet. Results will appear here after someone completes the assessment.</p>
+                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
+                <p>Загрузка данных из Supabase...</p>
+              </div>
+            ) : candidates.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>Пока нет кандидатов. Результаты будут отображаться здесь после прохождения тестов.</p>
+                <p className="text-sm mt-2">Данные синхронизируются через Supabase и видны отовсюду.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
