@@ -9,7 +9,7 @@ interface DatabaseQuestion {
   type: string;
   title_key: string;
   text_key: string;
-  options: any[];
+  options: any; // Changed from any[] to any to handle Json type
   correct_answer: string | null;
   max_score: number;
   image_a_url: string | null;
@@ -24,7 +24,7 @@ const mapDatabaseQuestionToQuestion = (dbQuestion: DatabaseQuestion): Question =
     type: dbQuestion.type as 'mcq' | 'likert' | 'image',
     titleKey: dbQuestion.title_key,
     textKey: dbQuestion.text_key,
-    options: dbQuestion.options,
+    options: Array.isArray(dbQuestion.options) ? dbQuestion.options : [],
     correctAnswer: dbQuestion.correct_answer,
     maxScore: dbQuestion.max_score,
     imageA: dbQuestion.image_a_url,
@@ -46,7 +46,7 @@ export const questionsService = {
     }
 
     console.log('Fetched questions from database:', data?.length || 0);
-    return data?.map(mapDatabaseQuestionToQuestion) || [];
+    return data?.map((item) => mapDatabaseQuestionToQuestion(item as DatabaseQuestion)) || [];
   },
 
   async getRandomQuestionSet(track: string): Promise<Question[]> {

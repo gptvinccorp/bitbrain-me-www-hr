@@ -4,6 +4,7 @@ import { Question } from '@/types/assessment';
 export const questions: Question[] = [
   {
     id: 'q1',
+    questionId: 'q1',
     module: 'systematicThinking',
     type: 'mcq',
     titleKey: 'q1.title',
@@ -19,6 +20,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q2',
+    questionId: 'q2',
     module: 'systematicThinking',
     type: 'mcq',
     titleKey: 'q2.title',
@@ -34,6 +36,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q3',
+    questionId: 'q3',
     module: 'attentionToDetail',
     type: 'image',
     titleKey: 'q3.title',
@@ -49,6 +52,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q4',
+    questionId: 'q4',
     module: 'workCapacity',
     type: 'mcq',
     titleKey: 'q4.title',
@@ -64,6 +68,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q5',
+    questionId: 'q5',
     module: 'workCapacity',
     type: 'mcq',
     titleKey: 'q5.title',
@@ -79,6 +84,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q6',
+    questionId: 'q6',
     module: 'honesty',
     type: 'mcq',
     titleKey: 'q6.title',
@@ -93,6 +99,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q7',
+    questionId: 'q7',
     module: 'honesty',
     type: 'mcq',
     titleKey: 'q7.title',
@@ -107,6 +114,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q8',
+    questionId: 'q8',
     module: 'growthMindset',
     type: 'likert',
     titleKey: 'q8.title',
@@ -121,6 +129,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q9',
+    questionId: 'q9',
     module: 'teamCommitment',
     type: 'mcq',
     titleKey: 'q9.title',
@@ -135,6 +144,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q10',
+    questionId: 'q10',
     module: 'adaptability',
     type: 'likert',
     titleKey: 'q10.title',
@@ -149,6 +159,7 @@ export const questions: Question[] = [
   },
   {
     id: 'q11',
+    questionId: 'q11',
     module: 'creativity',
     type: 'mcq',
     titleKey: 'q11.title',

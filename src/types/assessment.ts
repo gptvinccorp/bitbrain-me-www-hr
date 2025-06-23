@@ -20,6 +20,7 @@ export interface Answer {
 
 export interface Question {
   id: string;
+  questionId: string; // Adding this property to match usage
   module: string;
   type: 'mcq' | 'likert' | 'image';
   titleKey: string;
