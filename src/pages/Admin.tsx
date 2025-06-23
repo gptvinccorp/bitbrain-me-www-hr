@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -130,14 +129,22 @@ const Admin = () => {
     return 'bg-red-100 text-red-800';
   };
 
+  const formatCompletionTime = (seconds?: number) => {
+    if (!seconds) return 'N/A';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   const exportData = () => {
     const csvContent = [
-      ['Name', 'Email', 'Track', 'Score', 'Date'].join(','),
+      ['Name', 'Email', 'Track', 'Score', 'Completion Time', 'Date'].join(','),
       ...filteredCandidates.map(c => [
         c.name,
         c.email,
         c.track,
         c.score,
+        formatCompletionTime(c.completionTime),
         c.submittedAt.toLocaleDateString()
       ].join(','))
     ].join('\n');
@@ -317,6 +324,7 @@ const Admin = () => {
                       <th className="text-left py-3 px-4">Email</th>
                       <th className="text-left py-3 px-4">Track</th>
                       <th className="text-left py-3 px-4">{t('admin.score')}</th>
+                      <th className="text-left py-3 px-4">Time</th>
                       <th className="text-left py-3 px-4">{t('admin.date')}</th>
                       <th className="text-left py-3 px-4">Actions</th>
                     </tr>
@@ -335,6 +343,9 @@ const Admin = () => {
                           <Badge className={getScoreColor(candidate.score)}>
                             {candidate.score}/10
                           </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600">
+                          {formatCompletionTime(candidate.completionTime)}
                         </td>
                         <td className="py-3 px-4">
                           {candidate.submittedAt.toLocaleDateString()}

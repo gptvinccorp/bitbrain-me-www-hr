@@ -12,6 +12,7 @@ export type Database = {
       candidates: {
         Row: {
           answers: Json
+          completion_time: number | null
           created_at: string
           email: string
           id: string
@@ -24,6 +25,7 @@ export type Database = {
         }
         Insert: {
           answers: Json
+          completion_time?: number | null
           created_at?: string
           email: string
           id?: string
@@ -36,6 +38,7 @@ export type Database = {
         }
         Update: {
           answers?: Json
+          completion_time?: number | null
           created_at?: string
           email?: string
           id?: string

@@ -14,7 +14,7 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidateName, score }) => {
   const { t } = useLanguage();
 
   const handleGoHome = () => {
-    // Перезагружаем страницу для возврата на главную
+    // Принудительно перезагружаем страницу для возврата на главную
     window.location.href = '/';
   };
 
@@ -37,6 +37,9 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidateName, score }) => {
               <Mail className="w-5 h-5" />
               <span className="font-medium">{t('thanks.email')}</span>
             </div>
+            <p className="text-sm text-gray-600">
+              Результаты сохранены в базе данных и доступны администраторам
+            </p>
           </div>
 
           <Button 

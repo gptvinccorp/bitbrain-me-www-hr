@@ -9,6 +9,7 @@ export interface Candidate {
   score: number;
   moduleScores: ModuleScore[];
   submittedAt: Date;
+  completionTime?: number; // in seconds
 }
 
 export interface Answer {

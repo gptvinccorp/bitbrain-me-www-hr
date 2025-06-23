@@ -27,6 +27,7 @@ const Index = () => {
   const [currentState, setCurrentState] = useState<AppState>('landing');
   const [registrationData, setRegistrationData] = useState<RegistrationData | null>(null);
   const [finalScore, setFinalScore] = useState<number>(0);
+  const [testStartTime, setTestStartTime] = useState<Date | null>(null);
 
   const handleStartAssessment = () => {
     setCurrentState('registration');
@@ -34,12 +35,16 @@ const Index = () => {
 
   const handleRegistrationComplete = (data: RegistrationData) => {
     setRegistrationData(data);
+    setTestStartTime(new Date());
     setCurrentState('test');
   };
 
   const handleTestComplete = async (answers: Answer[]) => {
-    if (registrationData) {
+    if (registrationData && testStartTime) {
       console.log('Test completed, processing results...');
+      
+      // Calculate completion time in seconds
+      const completionTime = Math.round((new Date().getTime() - testStartTime.getTime()) / 1000);
       
       const { totalScore, moduleScores } = calculateScore(answers);
       setFinalScore(totalScore);
@@ -54,14 +59,15 @@ const Index = () => {
         answers,
         score: totalScore,
         moduleScores,
-        submittedAt: new Date()
+        submittedAt: new Date(),
+        completionTime
       };
 
       console.log('Saving candidate to database:', candidate);
 
       // Store candidate data using Supabase storage service
       try {
-        const success = await supabaseStorageService.saveCandidate(candidate);
+        const success = await supabaseStorageService.saveCandidate(candidate, completionTime);
         if (success) {
           console.log('Candidate assessment completed and saved to Supabase:', candidate);
           toast({

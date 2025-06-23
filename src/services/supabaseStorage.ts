@@ -10,6 +10,7 @@ interface CandidateInsert {
   answers: any;
   score: number;
   module_scores: any;
+  completion_time?: number;
 }
 
 // Helper function to validate and cast track type
@@ -35,7 +36,7 @@ function safeParseJson<T>(data: any, fallback: T): T {
 }
 
 class SupabaseStorageService {
-  async saveCandidate(candidate: Candidate): Promise<boolean> {
+  async saveCandidate(candidate: Candidate, completionTime?: number): Promise<boolean> {
     try {
       console.log('Attempting to save candidate to Supabase:', candidate.name);
       
@@ -47,7 +48,8 @@ class SupabaseStorageService {
         track: candidate.track,
         answers: JSON.stringify(candidate.answers),
         score: candidate.score,
-        module_scores: JSON.stringify(candidate.moduleScores)
+        module_scores: JSON.stringify(candidate.moduleScores),
+        completion_time: completionTime
       };
 
       console.log('Prepared candidate data:', candidateData);
@@ -96,7 +98,8 @@ class SupabaseStorageService {
         answers: safeParseJson<Answer[]>(item.answers, []),
         score: item.score,
         moduleScores: safeParseJson<ModuleScore[]>(item.module_scores, []),
-        submittedAt: new Date(item.submitted_at)
+        submittedAt: new Date(item.submitted_at),
+        completionTime: item.completion_time || undefined
       }));
     } catch (error) {
       console.error('Error loading candidates:', error);
@@ -126,7 +129,8 @@ class SupabaseStorageService {
         answers: safeParseJson<Answer[]>(data.answers, []),
         score: data.score,
         moduleScores: safeParseJson<ModuleScore[]>(data.module_scores, []),
-        submittedAt: new Date(data.submitted_at)
+        submittedAt: new Date(data.submitted_at),
+        completionTime: data.completion_time || undefined
       };
     } catch (error) {
       console.error('Error loading candidate:', error);
