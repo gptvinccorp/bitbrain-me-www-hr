@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Candidate, ModuleScore } from '@/types/assessment';
+import { Candidate, ModuleScore, Answer } from '@/types/assessment';
 
 interface CandidateInsert {
   name: string;
@@ -10,6 +10,28 @@ interface CandidateInsert {
   answers: any;
   score: number;
   module_scores: any;
+}
+
+// Helper function to validate and cast track type
+function validateTrack(track: string): 'sales' | 'academy' | 'creative' {
+  if (track === 'sales' || track === 'academy' || track === 'creative') {
+    return track;
+  }
+  console.warn(`Invalid track value: ${track}, defaulting to 'sales'`);
+  return 'sales';
+}
+
+// Helper function to safely parse JSON data
+function safeParseJson<T>(data: any, fallback: T): T {
+  try {
+    if (typeof data === 'string') {
+      return JSON.parse(data);
+    }
+    return data || fallback;
+  } catch (error) {
+    console.error('Error parsing JSON data:', error);
+    return fallback;
+  }
 }
 
 class SupabaseStorageService {
@@ -55,16 +77,16 @@ class SupabaseStorageService {
         return [];
       }
 
-      // Convert Supabase data to Candidate format
+      // Convert Supabase data to Candidate format with proper type casting
       return (data || []).map(item => ({
         id: item.id,
         name: item.name,
         email: item.email,
-        phone: item.phone,
-        track: item.track,
-        answers: item.answers,
+        phone: item.phone || '',
+        track: validateTrack(item.track),
+        answers: safeParseJson<Answer[]>(item.answers, []),
         score: item.score,
-        moduleScores: item.module_scores,
+        moduleScores: safeParseJson<ModuleScore[]>(item.module_scores, []),
         submittedAt: new Date(item.submitted_at)
       }));
     } catch (error) {
@@ -90,11 +112,11 @@ class SupabaseStorageService {
         id: data.id,
         name: data.name,
         email: data.email,
-        phone: data.phone,
-        track: data.track,
-        answers: data.answers,
+        phone: data.phone || '',
+        track: validateTrack(data.track),
+        answers: safeParseJson<Answer[]>(data.answers, []),
         score: data.score,
-        moduleScores: data.module_scores,
+        moduleScores: safeParseJson<ModuleScore[]>(data.module_scores, []),
         submittedAt: new Date(data.submitted_at)
       };
     } catch (error) {
