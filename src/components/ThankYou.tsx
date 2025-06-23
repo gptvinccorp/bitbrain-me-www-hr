@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,17 +24,18 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
   useEffect(() => {
     const saveAndSendEmail = async () => {
       console.log('=== STARTING SAVE AND EMAIL PROCESS ===');
+      console.log('RLS policies should now be active for public access');
       
       // Step 1: Save to database
       setSavingState('saving');
       setErrorDetails('');
       
       try {
-        console.log('Attempting to save candidate:', candidate.name);
+        console.log('Attempting to save candidate with new RLS policies:', candidate.name);
         const saveSuccess = await supabaseStorageService.saveCandidate(candidate, completionTime);
         
         if (saveSuccess) {
-          console.log('✅ Candidate saved successfully');
+          console.log('✅ Candidate saved successfully with new RLS policies');
           setSavingState('saved');
           
           toast({
@@ -82,7 +82,7 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
           }
           
         } else {
-          console.error('❌ Failed to save candidate');
+          console.error('❌ Failed to save candidate - this should not happen with new RLS policies');
           setSavingState('error');
           setErrorDetails(t('thankYou.saveError'));
           
@@ -94,7 +94,7 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidate, completionTime, onStartN
         }
         
       } catch (saveError: any) {
-        console.error('❌ Critical save error:', saveError);
+        console.error('❌ Critical save error even with RLS policies:', saveError);
         setSavingState('error');
         setErrorDetails(`${t('thankYou.criticalSaveError')}: ${saveError.message || t('thankYou.unknownError')}`);
         
