@@ -37,27 +37,32 @@ function safeParseJson<T>(data: any, fallback: T): T {
 class SupabaseStorageService {
   async saveCandidate(candidate: Candidate): Promise<boolean> {
     try {
+      console.log('Attempting to save candidate to Supabase:', candidate.name);
+      
       // Prepare data for insertion
       const candidateData: CandidateInsert = {
         name: candidate.name,
         email: candidate.email,
         phone: candidate.phone,
         track: candidate.track,
-        answers: candidate.answers,
+        answers: JSON.stringify(candidate.answers),
         score: candidate.score,
-        module_scores: candidate.moduleScores
+        module_scores: JSON.stringify(candidate.moduleScores)
       };
 
-      const { error } = await supabase
+      console.log('Prepared candidate data:', candidateData);
+
+      const { data, error } = await supabase
         .from('candidates')
-        .insert([candidateData]);
+        .insert([candidateData])
+        .select();
 
       if (error) {
         console.error('Error saving candidate to Supabase:', error);
         return false;
       }
 
-      console.log('Candidate saved successfully to Supabase:', candidate.name);
+      console.log('Candidate saved successfully to Supabase:', data);
       return true;
     } catch (error) {
       console.error('Error saving candidate:', error);
@@ -67,6 +72,8 @@ class SupabaseStorageService {
 
   async getAllCandidates(): Promise<Candidate[]> {
     try {
+      console.log('Fetching candidates from Supabase...');
+      
       const { data, error } = await supabase
         .from('candidates')
         .select('*')
@@ -76,6 +83,8 @@ class SupabaseStorageService {
         console.error('Error fetching candidates from Supabase:', error);
         return [];
       }
+
+      console.log('Fetched candidates from Supabase:', data?.length || 0);
 
       // Convert Supabase data to Candidate format with proper type casting
       return (data || []).map(item => ({

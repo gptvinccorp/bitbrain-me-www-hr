@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Users, Target, Palette, ArrowRight } from 'lucide-react';
@@ -11,6 +10,7 @@ import { Answer, Candidate } from '@/types/assessment';
 import { calculateScore, generateRecommendations } from '@/utils/scoring';
 import { supabaseStorageService } from '@/services/supabaseStorage';
 import { sendEmailToCandidate } from '@/services/email';
+import { useToast } from '@/hooks/use-toast';
 
 type AppState = 'landing' | 'registration' | 'test' | 'complete';
 
@@ -23,6 +23,7 @@ interface RegistrationData {
 
 const Index = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [currentState, setCurrentState] = useState<AppState>('landing');
   const [registrationData, setRegistrationData] = useState<RegistrationData | null>(null);
   const [finalScore, setFinalScore] = useState<number>(0);
@@ -38,6 +39,8 @@ const Index = () => {
 
   const handleTestComplete = async (answers: Answer[]) => {
     if (registrationData) {
+      console.log('Test completed, processing results...');
+      
       const { totalScore, moduleScores } = calculateScore(answers);
       setFinalScore(totalScore);
 
@@ -54,12 +57,32 @@ const Index = () => {
         submittedAt: new Date()
       };
 
+      console.log('Saving candidate to database:', candidate);
+
       // Store candidate data using Supabase storage service
-      const success = await supabaseStorageService.saveCandidate(candidate);
-      if (success) {
-        console.log('Candidate assessment completed and saved to Supabase:', candidate);
-      } else {
-        console.error('Failed to save candidate to Supabase');
+      try {
+        const success = await supabaseStorageService.saveCandidate(candidate);
+        if (success) {
+          console.log('Candidate assessment completed and saved to Supabase:', candidate);
+          toast({
+            title: "Результаты сохранены",
+            description: "Ваши результаты успешно сохранены в базе данных",
+          });
+        } else {
+          console.error('Failed to save candidate to Supabase');
+          toast({
+            title: "Ошибка сохранения",
+            description: "Не удалось сохранить результаты. Обратитесь к администратору.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Error saving candidate:', error);
+        toast({
+          title: "Ошибка",
+          description: "Произошла ошибка при сохранении результатов",
+          variant: "destructive",
+        });
       }
       
       // Generate recommendations

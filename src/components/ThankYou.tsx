@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Mail, Home } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useNavigate } from 'react-router-dom';
 
 interface ThankYouProps {
   candidateName: string;
@@ -13,10 +12,10 @@ interface ThankYouProps {
 
 const ThankYou: React.FC<ThankYouProps> = ({ candidateName, score }) => {
   const { t } = useLanguage();
-  const navigate = useNavigate();
 
   const handleGoHome = () => {
-    navigate('/');
+    // Перезагружаем страницу для возврата на главную
+    window.location.href = '/';
   };
 
   return (
