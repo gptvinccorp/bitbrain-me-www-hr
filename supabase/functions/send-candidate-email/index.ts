@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
@@ -94,8 +93,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Attempting to send email via Resend...');
 
+    // ВАЖНО: Замените YOUR_DOMAIN.com на ваш верифицированный домен
+    // Например: "Web3 Media Agency <noreply@yourdomain.com>"
     const emailResponse = await resend.emails.send({
-      from: "Web3 Media Agency <onboarding@resend.dev>",
+      from: "Web3 Media Agency <noreply@YOUR_DOMAIN.com>", // ← ЗАМЕНИТЕ НА ВАШ ДОМЕН
       to: [email],
       subject: "Ваши результаты тестирования - Web3 Media Agency",
       html: `
@@ -113,7 +114,6 @@ const handler = async (req: Request): Promise<Response> => {
             .recommendation { margin: 10px 0; padding-left: 20px; position: relative; }
             .recommendation:before { content: "•"; color: #10b981; font-weight: bold; position: absolute; left: 0; }
             .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 0.9em; color: #6b7280; }
-            .test-notice { background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #f59e0b; }
           </style>
         </head>
         <body>
@@ -123,11 +123,6 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div class="content">
-            <div class="test-notice">
-              <strong>🧪 Тестовое письмо</strong><br>
-              Это тестовое письмо отправлено из системы оценки кандидатов.
-            </div>
-            
             <h2>Здравствуйте, ${name}!</h2>
             
             <p>Спасибо за прохождение нашего тестирования для позиции в направлении "<strong>${trackName}</strong>".</p>
@@ -152,9 +147,7 @@ const handler = async (req: Request): Promise<Response> => {
               
               <hr style="margin: 20px 0;">
               <p style="font-size: 12px; color: #9ca3af;">
-                <strong>Техническая информация для разработчиков:</strong><br>
                 Время отправки: ${new Date().toISOString()}<br>
-                Функция: send-candidate-email<br>
                 Получатель: ${email}
               </p>
             </div>
@@ -171,13 +164,12 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("=== RESEND ERROR ===");
       console.error("Error details:", emailResponse.error);
       
-      // Возвращаем структурированный ответ с ошибкой
       return new Response(JSON.stringify({ 
         success: false, 
         error: emailResponse.error,
         details: "Resend API returned an error"
       }), {
-        status: 200, // Возвращаем 200, чтобы клиент мог обработать ошибку
+        status: 200,
         headers: {
           "Content-Type": "application/json",
           ...corsHeaders,
@@ -213,7 +205,7 @@ const handler = async (req: Request): Promise<Response> => {
         details: "Edge function encountered an error"
       }),
       {
-        status: 200, // Возвращаем 200, чтобы клиент мог обработать ошибку
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
