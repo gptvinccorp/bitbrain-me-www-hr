@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Users, Target, Palette, ArrowRight } from 'lucide-react';
@@ -185,7 +184,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.sales')}</h3>
             <p className="text-gray-600">
-              Оценка навыков продаж, коммуникации и работы с клиентами
+              {t('track.salesDesc')}
             </p>
           </div>
 
@@ -195,7 +194,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.academy')}</h3>
             <p className="text-gray-600">
-              Оценка способности к обучению, аналитического мышления и профессионального развития
+              {t('track.academyDesc')}
             </p>
           </div>
 
@@ -205,7 +204,7 @@ const Index = () => {
             </div>
             <h3 className="text-xl font-semibold mb-3">{t('track.creative')}</h3>
             <p className="text-gray-600">
-              Оценка творческих способностей, дизайн-мышления и создания вирусного контента
+              {t('track.creativeDesc')}
             </p>
           </div>
         </div>

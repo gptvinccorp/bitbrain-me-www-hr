@@ -17,7 +17,10 @@ export const translations = {
     track: {
       sales: 'Отдел продаж',
       academy: 'Внутренняя академия',
-      creative: 'Креативный отдел'
+      creative: 'Креативный отдел',
+      salesDesc: 'Оценка навыков продаж, коммуникации и работы с клиентами',
+      academyDesc: 'Оценка способности к обучению, аналитического мышления и профессионального развития',
+      creativeDesc: 'Оценка творческих способностей, дизайн-мышления и создания вирусного контента'
     },
     features: {
       title: 'Что мы оцениваем',
@@ -227,7 +230,10 @@ export const translations = {
     track: {
       sales: 'Sales Department',
       academy: 'Internal Academy',
-      creative: 'Creative Department'
+      creative: 'Creative Department',
+      salesDesc: 'Assessment of sales skills, communication and client work',
+      academyDesc: 'Assessment of learning ability, analytical thinking and professional development',
+      creativeDesc: 'Assessment of creative abilities, design thinking and viral content creation'
     },
     features: {
       title: 'What We Evaluate',
