@@ -26,19 +26,26 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidateName, score }) => {
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
           <CardTitle className="text-2xl text-green-600">{t('thanks.title')}</CardTitle>
+          <p className="text-gray-600">{t('thanks.subtitle')}</p>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-blue-600 mb-2">
+              {t('thanks.score')} {score} {t('thanks.outOf')}
+            </div>
+          </div>
+          
           <p className="text-gray-600">
             {candidateName}, {t('thanks.message')}
           </p>
           
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
+          <div className="bg-green-50 p-4 rounded-lg">
+            <div className="flex items-center justify-center gap-2 text-green-600 mb-2">
               <Mail className="w-5 h-5" />
               <span className="font-medium">{t('thanks.email')}</span>
             </div>
             <p className="text-sm text-gray-600">
-              Результаты сохранены в базе данных и доступны администраторам
+              {t('thanks.reportGenerated')}
             </p>
           </div>
 
@@ -47,11 +54,11 @@ const ThankYou: React.FC<ThankYouProps> = ({ candidateName, score }) => {
             className="w-full mt-6 bg-blue-600 hover:bg-blue-700"
           >
             <Home className="w-4 h-4 mr-2" />
-            {t('nav.home')}
+            {t('thanks.backHome')}
           </Button>
 
           <div className="text-sm text-gray-500 mt-6">
-            <p>Assessment ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+            <p>{t('thanks.assessmentId')}: {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
           </div>
         </CardContent>
       </Card>

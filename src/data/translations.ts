@@ -1,8 +1,14 @@
+
 export const translations = {
   ru: {
     header: {
       title: 'Web3 Media Agency',
       subtitle: 'Автоматизированная система оценки кандидатов'
+    },
+    nav: {
+      home: 'Главная',
+      admin: 'Администрация',
+      login: 'Вход'
     },
     hero: {
       title: 'Пройдите тест и получите персональную оценку',
@@ -149,7 +155,13 @@ export const translations = {
       track: 'Выберите направление',
       trackPlaceholder: 'Выберите подходящий трек',
       submit: 'Начать тест',
-      consent: 'Я согласен(а) на обработку персональных данных'
+      consent: 'Я согласен(а) на обработку персональных данных',
+      nameRequired: 'Укажите ваше имя',
+      emailRequired: 'Укажите email адрес',
+      emailInvalid: 'Некорректный email адрес',
+      phoneRequired: 'Укажите номер телефона',
+      trackRequired: 'Выберите направление',
+      consentRequired: 'Необходимо согласие на обработку данных'
     },
     thanks: {
       title: 'Спасибо за прохождение теста!',
@@ -157,7 +169,16 @@ export const translations = {
       score: 'Ваш результат:',
       outOf: 'из 10',
       message: 'Мы рассмотрим ваши результаты и свяжемся с вами в ближайшее время.',
-      backHome: 'Вернуться на главную'
+      backHome: 'Вернуться на главную',
+      email: 'Результаты отправлены на email',
+      reportGenerated: 'Отчет сформирован',
+      assessmentId: 'ID оценки'
+    },
+    errors: {
+      loadingQuestions: 'Не удалось загрузить вопросы теста',
+      tryAgain: 'Попробовать снова',
+      submitError: 'Ошибка при отправке результатов',
+      networkError: 'Проблемы с сетью. Попробуйте позже.'
     }
   },
 
@@ -165,6 +186,11 @@ export const translations = {
     header: {
       title: 'Web3 Media Agency',
       subtitle: 'Automated Candidate Assessment System'
+    },
+    nav: {
+      home: 'Home',
+      admin: 'Admin',
+      login: 'Login'
     },
     hero: {
       title: 'Take the Test and Get Your Personal Assessment',
@@ -311,7 +337,13 @@ export const translations = {
       track: 'Choose Track',
       trackPlaceholder: 'Select appropriate track',
       submit: 'Start Test',
-      consent: 'I agree to personal data processing'
+      consent: 'I agree to personal data processing',
+      nameRequired: 'Please enter your name',
+      emailRequired: 'Please enter your email',
+      emailInvalid: 'Invalid email address',
+      phoneRequired: 'Please enter your phone number',
+      trackRequired: 'Please select a track',
+      consentRequired: 'Consent to data processing is required'
     },
     thanks: {
       title: 'Thank You for Taking the Test!',
@@ -319,7 +351,16 @@ export const translations = {
       score: 'Your score:',
       outOf: 'out of 10',
       message: 'We will review your results and contact you soon.',
-      backHome: 'Back to Home'
+      backHome: 'Back to Home',
+      email: 'Results sent to email',
+      reportGenerated: 'Report generated',
+      assessmentId: 'Assessment ID'
+    },
+    errors: {
+      loadingQuestions: 'Failed to load test questions',
+      tryAgain: 'Try Again',
+      submitError: 'Error submitting results',
+      networkError: 'Network issues. Please try later.'
     }
   }
 };

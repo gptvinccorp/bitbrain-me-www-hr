@@ -1,4 +1,3 @@
-
 import { Question } from '@/types/assessment';
 
 export const questions: Question[] = [
@@ -48,7 +47,9 @@ export const questions: Question[] = [
       { key: 'd', textKey: 'q3.d', score: 7 }
     ],
     correctAnswer: 'c',
-    maxScore: 10
+    maxScore: 10,
+    imageA: '/images/detail-test-a.jpg',
+    imageB: '/images/detail-test-b.jpg'
   },
   {
     id: 'q4',
