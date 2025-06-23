@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, Eye, Filter, Trash2, Mail, LogOut, Home, RefreshCw } from 'lucide-react';
+import { Download, Eye, Filter, Trash2, Mail, LogOut, Home, RefreshCw, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import LanguageSelector from '@/components/LanguageSelector';
@@ -151,22 +150,43 @@ const Admin = () => {
   const handleSendEmail = async (candidate: Candidate) => {
     toast({
       title: "Отправка письма...",
-      description: `Отправляем результаты кандидату ${candidate.name}`,
+      description: `Отправляем результаты кандидату ${candidate.name} (${candidate.email})`,
     });
 
-    const success = await sendEmailToCandidate(candidate);
+    console.log('Начинаем отправку email для кандидата:', candidate);
+
+    const result = await sendEmailToCandidate(candidate);
     
-    if (success) {
+    if (result.success) {
       toast({
-        title: "Письмо отправлено!",
+        title: "✅ Письмо отправлено!",
         description: `Результаты успешно отправлены ${candidate.name}`,
       });
     } else {
+      console.error('Ошибка отправки email:', result.error);
+      
       toast({
-        title: "Ошибка отправки",
-        description: "Не удалось отправить письмо. Попробуйте еще раз.",
+        title: "❌ Ошибка отправки",
+        description: result.error || "Не удалось отправить письмо. Проверьте логи.",
         variant: "destructive",
       });
+
+      // Показываем дополнительную информацию для разработчика
+      if (result.error?.includes('You can only send testing emails')) {
+        toast({
+          title: "🔧 Настройка Resend",
+          description: (
+            <div className="space-y-2">
+              <p>Для отправки на другие адреса нужно:</p>
+              <ol className="list-decimal list-inside text-sm">
+                <li>Верифицировать домен на resend.com/domains</li>
+                <li>Изменить адрес отправителя в коде</li>
+              </ol>
+            </div>
+          ),
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -301,6 +321,24 @@ const Admin = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Email Testing Info */}
+        <Card className="mb-6 border-amber-200 bg-amber-50">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-amber-800 mb-2">Тестирование email отправки</h3>
+                <div className="text-sm text-amber-700 space-y-1">
+                  <p>• Текущий статус: используется Resend с базовым аккаунтом</p>
+                  <p>• Для отправки на любые адреса нужно верифицировать домен на <a href="https://resend.com/domains" target="_blank" className="underline">resend.com/domains</a></p>
+                  <p>• Без верификации домена письма отправляются только на email владельца аккаунта</p>
+                  <p>• Все попытки отправки логируются в консоли браузера (F12)</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Controls */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
@@ -430,9 +468,11 @@ const Admin = () => {
                               variant="ghost" 
                               size="sm"
                               onClick={() => handleSendEmail(candidate)}
-                              className="text-blue-600 hover:text-blue-700"
+                              className="text-blue-600 hover:text-blue-700 flex items-center gap-2"
+                              title={`Отправить результаты на ${candidate.email}`}
                             >
                               <Mail className="w-4 h-4" />
+                              Тест
                             </Button>
                             <Button 
                               variant="ghost" 

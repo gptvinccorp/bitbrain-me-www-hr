@@ -2,16 +2,9 @@
 import { Candidate } from '@/types/assessment';
 import { supabase } from '@/integrations/supabase/client';
 
-interface EmailData {
-  to: string;
-  name: string;
-  score: number;
-  recommendations: string[];
-}
-
-export const sendEmailToCandidate = async (candidate: Candidate): Promise<boolean> => {
+export const sendEmailToCandidate = async (candidate: Candidate): Promise<{ success: boolean; error?: string }> => {
   try {
-    console.log('Sending email via edge function to:', candidate.email);
+    console.log('Отправка email через edge function для:', candidate.email);
     
     const { data, error } = await supabase.functions.invoke('send-candidate-email', {
       body: {
@@ -23,16 +16,51 @@ export const sendEmailToCandidate = async (candidate: Candidate): Promise<boolea
       }
     });
 
+    console.log('Ответ от edge function:', { data, error });
+
     if (error) {
-      console.error('Error calling edge function:', error);
-      return false;
+      console.error('Ошибка вызова edge function:', error);
+      return { 
+        success: false, 
+        error: `Ошибка edge function: ${error.message || 'Неизвестная ошибка'}`
+      };
     }
 
-    console.log('Email sent successfully:', data);
-    return true;
-  } catch (error) {
-    console.error('Error sending email:', error);
-    return false;
+    if (data && !data.success) {
+      console.error('Edge function вернула ошибку:', data.error);
+      
+      // Проверяем на специфичные ошибки Resend
+      if (data.error && typeof data.error === 'object') {
+        const errorMessage = data.error.message || JSON.stringify(data.error);
+        
+        if (errorMessage.includes('You can only send testing emails')) {
+          return { 
+            success: false, 
+            error: 'Ошибка Resend: Для отправки на другие адреса нужно верифицировать домен на resend.com/domains'
+          };
+        }
+        
+        return { 
+          success: false, 
+          error: `Ошибка Resend: ${errorMessage}`
+        };
+      }
+      
+      return { 
+        success: false, 
+        error: data.error || 'Неизвестная ошибка отправки'
+      };
+    }
+
+    console.log('Email успешно отправлен:', data);
+    return { success: true };
+    
+  } catch (error: any) {
+    console.error('Критическая ошибка отправки email:', error);
+    return { 
+      success: false, 
+      error: `Критическая ошибка: ${error.message || 'Неизвестная ошибка'}`
+    };
   }
 };
 

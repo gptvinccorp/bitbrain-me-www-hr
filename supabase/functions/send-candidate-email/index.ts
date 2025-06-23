@@ -78,7 +78,11 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { name, email, score, track, moduleScores }: EmailRequest = await req.json();
 
-    console.log('Sending email to:', email, 'Score:', score);
+    console.log('=== EMAIL SENDING ATTEMPT ===');
+    console.log('Recipient:', email);
+    console.log('Score:', score);
+    console.log('Track:', track);
+    console.log('RESEND_API_KEY exists:', !!Deno.env.get("RESEND_API_KEY"));
 
     const recommendations = generateRecommendations(score, moduleScores);
     
@@ -89,6 +93,8 @@ const handler = async (req: Request): Promise<Response> => {
     };
 
     const trackName = trackNames[track as keyof typeof trackNames] || track;
+
+    console.log('Attempting to send email via Resend...');
 
     const emailResponse = await resend.emails.send({
       from: "Web3 Media Agency <onboarding@resend.dev>",
@@ -109,6 +115,7 @@ const handler = async (req: Request): Promise<Response> => {
             .recommendation { margin: 10px 0; padding-left: 20px; position: relative; }
             .recommendation:before { content: "•"; color: #10b981; font-weight: bold; position: absolute; left: 0; }
             .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 0.9em; color: #6b7280; }
+            .test-notice { background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #f59e0b; }
           </style>
         </head>
         <body>
@@ -118,6 +125,11 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div class="content">
+            <div class="test-notice">
+              <strong>🧪 Тестовое письмо</strong><br>
+              Это тестовое письмо отправлено из системы оценки кандидатов.
+            </div>
+            
             <h2>Здравствуйте, ${name}!</h2>
             
             <p>Спасибо за прохождение нашего тестирования для позиции в направлении "<strong>${trackName}</strong>".</p>
@@ -139,6 +151,14 @@ const handler = async (req: Request): Promise<Response> => {
               <strong>Команда Web3 Media Agency</strong></p>
               
               <p><em>Это автоматическое письмо. Если у вас есть вопросы, пожалуйста, свяжитесь с нами.</em></p>
+              
+              <hr style="margin: 20px 0;">
+              <p style="font-size: 12px; color: #9ca3af;">
+                <strong>Техническая информация для разработчиков:</strong><br>
+                Время отправки: ${new Date().toISOString()}<br>
+                Функция: send-candidate-email<br>
+                Получатель: ${email}
+              </p>
             </div>
           </div>
         </body>
@@ -146,9 +166,35 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("=== RESEND RESPONSE ===");
+    console.log("Full response:", JSON.stringify(emailResponse, null, 2));
 
-    return new Response(JSON.stringify({ success: true, messageId: emailResponse.data?.id }), {
+    if (emailResponse.error) {
+      console.error("=== RESEND ERROR ===");
+      console.error("Error details:", emailResponse.error);
+      
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: emailResponse.error,
+        details: "Resend API returned an error. Check logs for details."
+      }), {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      });
+    }
+
+    console.log("=== EMAIL SENT SUCCESSFULLY ===");
+    console.log("Message ID:", emailResponse.data?.id);
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      messageId: emailResponse.data?.id,
+      recipient: email,
+      timestamp: new Date().toISOString()
+    }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -156,9 +202,17 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-candidate-email function:", error);
+    console.error("=== FUNCTION ERROR ===");
+    console.error("Error type:", typeof error);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        success: false,
+        error: error.message,
+        details: "Edge function encountered an error. Check logs for details."
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
