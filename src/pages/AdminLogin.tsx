@@ -44,13 +44,12 @@ const AdminLogin = () => {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <Label htmlFor="username">Логин</Label>
+              <Label htmlFor="username">Логин (login / password)</Label>
               <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
                 required
               />
             </div>
@@ -62,7 +61,6 @@ const AdminLogin = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="admin"
                 required
               />
             </div>
