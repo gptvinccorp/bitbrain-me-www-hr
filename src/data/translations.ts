@@ -113,7 +113,7 @@ export const translations = {
     'track.creative': 'Creative Department',
     'track.creativeDesc': 'For visionary creators who excel at viral content, storytelling, and brand communication.',
     
-    // Features translations
+    // Features translations - FIXED
     'features.title': 'What We Evaluate',
     'features.evaluate': 'We assess your:',
     'features.systematic': 'Systematic and structured thinking',
