@@ -16,21 +16,32 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [language, setLanguage] = useState<Language>('ru');
 
   const t = (key: string): string => {
-    const keys = key.split('.');
-    let value: any = translations[language];
-    
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        console.warn(`Translation not found for key: ${key} in language: ${language}`);
-        // Fallback to key if translation not found
-        return key;
+    try {
+      const currentTranslations = translations[language];
+      
+      // Если ключ существует напрямую (без точек)
+      if (currentTranslations[key]) {
+        return currentTranslations[key];
       }
+      
+      // Если ключ содержит точки, разбиваем его
+      const keys = key.split('.');
+      let value: any = currentTranslations;
+      
+      for (const k of keys) {
+        if (value && typeof value === 'object' && k in value) {
+          value = value[k];
+        } else {
+          console.warn(`Translation not found for key: ${key} in language: ${language}`);
+          return key; // Возвращаем ключ как fallback
+        }
+      }
+      
+      return typeof value === 'string' ? value : key;
+    } catch (error) {
+      console.error('Translation error:', error);
+      return key;
     }
-    
-    const result = typeof value === 'string' ? value : key;
-    return result;
   };
 
   return (

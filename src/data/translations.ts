@@ -253,4 +253,4 @@ export const translations = {
     
     ...questionTranslationsRu
   }
-};
+} as const;
