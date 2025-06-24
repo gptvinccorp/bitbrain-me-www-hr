@@ -1,6 +1,84 @@
 
 // English translations for the new advanced questions
 export const questionTranslationsEn = {
+  // Old questions (q1-q11) - basic questions
+  'q1.title': 'Logic Problem',
+  'q1.text': 'If all roses are flowers and some flowers are red, which statement is definitely true?',
+  'q1.a': 'All roses are red',
+  'q1.b': 'Some roses are flowers',
+  'q1.c': 'No roses are red',
+  'q1.d': 'All flowers are roses',
+
+  'q2.title': 'Sequence Analysis',
+  'q2.text': 'What comes next in the sequence: 2, 6, 12, 20, 30, ?',
+  'q2.a': '40',
+  'q2.b': '42',
+  'q2.c': '38',
+  'q2.d': '36',
+
+  'q3.title': 'Detail Check',
+  'q3.text': 'Compare the two images carefully and count the differences.',
+  'q3.a': '2 differences',
+  'q3.b': '3 differences',
+  'q3.c': '4 differences',
+  'q3.d': '5 differences',
+
+  'q4.title': 'Quick Math',
+  'q4.text': 'Calculate: 15% of 240 + 25% of 160',
+  'q4.a': '76',
+  'q4.b': '78',
+  'q4.c': '80',
+  'q4.d': '82',
+
+  'q5.title': 'Time Management',
+  'q5.text': 'You have 3 tasks: A (2 hours), B (1 hour), C (3 hours). What is the optimal order to minimize total waiting time?',
+  'q5.a': 'B, A, C',
+  'q5.b': 'A, B, C',
+  'q5.c': 'C, A, B',
+  'q5.d': 'A, C, B',
+
+  'q6.title': 'Workplace Ethics',
+  'q6.text': 'You notice a colleague consistently arriving late. What do you do?',
+  'q6.a': 'Ignore it',
+  'q6.b': 'Report immediately',
+  'q6.c': 'Talk to them first',
+  'q6.d': 'Tell other colleagues',
+
+  'q7.title': 'Honesty Test',
+  'q7.text': 'A client asks for information you do not have. What do you do?',
+  'q7.a': 'Make something up',
+  'q7.b': 'Admit you don\'t know and find out',
+  'q7.c': 'Avoid the question',
+  'q7.d': 'Blame someone else',
+
+  'q8.title': 'Learning Attitude',
+  'q8.text': 'How do you feel about learning new skills at work?',
+  'q8.a': 'I avoid it',
+  'q8.b': 'I don\'t mind',
+  'q8.c': 'I like it',
+  'q8.d': 'I love it and actively seek opportunities',
+
+  'q9.title': 'Team Situation',
+  'q9.text': 'Your team is behind schedule. What do you do?',
+  'q9.a': 'Blame others',
+  'q9.b': 'Offer to help and find solutions',
+  'q9.c': 'Wait for instructions',
+  'q9.d': 'Work only on your part',
+
+  'q10.title': 'Stress Response',
+  'q10.text': 'How do you handle sudden changes in project requirements?',
+  'q10.a': 'Get frustrated',
+  'q10.b': 'Adapt and find new solutions',
+  'q10.c': 'Complain to management',
+  'q10.d': 'Ignore the changes',
+
+  'q11.title': 'Creative Problem',
+  'q11.text': 'What would be the most creative way to promote a new product?',
+  'q11.a': 'Traditional advertising',
+  'q11.b': 'Social media posts',
+  'q11.c': 'Influencer partnerships',
+  'q11.d': 'Interactive user-generated content campaign',
+
   // Systematic thinking - complex logical tasks
   'st1.title': 'Logical Sequence',
   'st1.text': 'A company has 5 departments. Each department has a unique code from A to E. If department A works only when department C works, department B cannot work simultaneously with department D, and department E works only when departments A and B work, which departments can work simultaneously?',
