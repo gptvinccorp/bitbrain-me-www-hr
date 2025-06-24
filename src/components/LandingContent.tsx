@@ -2,6 +2,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Users, Target, Palette, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import LanguageSelector from '@/components/LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LandingContentProps {
@@ -13,6 +15,24 @@ const LandingContent = ({ onStartAssessment }: LandingContentProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="container mx-auto px-4 py-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{t('header.title')}</h1>
+            <p className="text-gray-600">{t('header.subtitle')}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <LanguageSelector />
+            <Button variant="outline" asChild className="text-sm">
+              <Link to="/admin-login">
+                Админка
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">

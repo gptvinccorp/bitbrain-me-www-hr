@@ -4,7 +4,6 @@ import LanguageSelector from '@/components/LanguageSelector';
 import RegistrationForm from '@/components/RegistrationForm';
 import TestInterface from '@/components/TestInterface';
 import ThankYou from '@/components/ThankYou';
-import AppHeader from '@/components/AppHeader';
 import LandingContent from '@/components/LandingContent';
 import { useAssessment } from '@/hooks/useAssessment';
 
@@ -62,12 +61,9 @@ const Index = () => {
     );
   }
 
-  // Landing page (default)
+  // Landing page (default) - теперь LandingContent включает свой собственный header
   return (
-    <>
-      <AppHeader />
-      <LandingContent onStartAssessment={handleStartAssessment} />
-    </>
+    <LandingContent onStartAssessment={handleStartAssessment} />
   );
 };
 
