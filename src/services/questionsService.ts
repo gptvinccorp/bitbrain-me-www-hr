@@ -54,41 +54,42 @@ export const questionsService = {
     
     const allQuestions = await this.getAllQuestions();
     
-    // Фильтрация вопросов по треку
-    let filteredQuestions = allQuestions;
+    // Более сбалансированный подбор вопросов
+    const questionsByModule = new Map<string, Question[]>();
     
-    // Для творческого трека добавляем вопрос креативности
-    if (track === 'creative') {
-      // Включаем все модули включая креативность
-      filteredQuestions = allQuestions;
-    } else {
-      // Для других треков исключаем креативность
+    // Фильтрация по треку
+    let filteredQuestions = allQuestions;
+    if (track !== 'creative') {
       filteredQuestions = allQuestions.filter(q => q.module !== 'creativity');
     }
     
-    console.log(`Filtered questions for ${track}:`, filteredQuestions.length);
-    
     // Группируем по модулям
-    const moduleGroups = new Map<string, Question[]>();
     filteredQuestions.forEach(q => {
-      if (!moduleGroups.has(q.module)) {
-        moduleGroups.set(q.module, []);
+      if (!questionsByModule.has(q.module)) {
+        questionsByModule.set(q.module, []);
       }
-      moduleGroups.get(q.module)!.push(q);
+      questionsByModule.get(q.module)!.push(q);
     });
     
-    // Выбираем по одному вопросу из каждого модуля (или все если модуль содержит только один вопрос)
+    // Стратегия отбора: 2-3 вопроса на модуль для лучшей оценки
     const selectedQuestions: Question[] = [];
-    moduleGroups.forEach((questions, module) => {
-      if (questions.length > 0) {
-        // Для каждого модуля берем все доступные вопросы (так как в каждом модуле по 1-2 вопроса)
-        selectedQuestions.push(...questions);
-      }
+    const questionsPerModule = track === 'creative' ? 2 : 3; // Для creative трека меньше, т.к. больше модулей
+    
+    questionsByModule.forEach((questions, module) => {
+      // Сортируем по сложности и берем разные уровни
+      const sortedQuestions = questions.sort((a, b) => {
+        const aRange = Math.max(...a.options.map(opt => opt.score)) - Math.min(...a.options.map(opt => opt.score));
+        const bRange = Math.max(...b.options.map(opt => opt.score)) - Math.min(...b.options.map(opt => opt.score));
+        return bRange - aRange; // Сначала сложные
+      });
+      
+      const selected = sortedQuestions.slice(0, Math.min(questionsPerModule, sortedQuestions.length));
+      selectedQuestions.push(...selected);
     });
     
-    console.log('Selected questions for test:', selectedQuestions.length);
-    console.log('Questions by module:', Array.from(moduleGroups.keys()).map(module => 
-      `${module}: ${moduleGroups.get(module)?.length || 0}`
+    console.log('Selected questions V2:', selectedQuestions.length);
+    console.log('Questions by module V2:', Array.from(questionsByModule.keys()).map(module => 
+      `${module}: ${Math.min(questionsPerModule, questionsByModule.get(module)?.length || 0)}`
     ));
     
     return selectedQuestions;

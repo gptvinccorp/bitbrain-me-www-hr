@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Answer, Candidate } from '@/types/assessment';
-import { calculateScore, generateRecommendations } from '@/utils/scoring';
+import { calculateScoreV2, generateRecommendationsV2 } from '@/utils/scoringV2';
 import { useToast } from '@/hooks/use-toast';
 
 export interface RegistrationData {
@@ -32,15 +32,17 @@ export const useAssessment = () => {
 
   const handleTestComplete = async (answers: Answer[]) => {
     if (registrationData && testStartTime) {
-      console.log('=== TEST COMPLETION STARTED ===');
+      console.log('=== TEST COMPLETION V2 STARTED ===');
       console.log('Processing test results for:', registrationData.name);
+      console.log('Track:', registrationData.track);
       
       const completionTime = Math.round((new Date().getTime() - testStartTime.getTime()) / 1000);
       console.log('Test completion time:', completionTime, 'seconds');
       
       try {
-        const { totalScore, moduleScores } = await calculateScore(answers);
-        console.log('Calculated score:', totalScore, 'Module scores:', moduleScores);
+        // Используем новую систему подсчета баллов
+        const { totalScore, moduleScores } = await calculateScoreV2(answers, registrationData.track);
+        console.log('Calculated score V2:', totalScore, 'Module scores:', moduleScores);
 
         const candidate: Candidate = {
           id: Math.random().toString(36).substr(2, 9),
@@ -55,16 +57,16 @@ export const useAssessment = () => {
           completionTime
         };
 
-        console.log('Created candidate object:', candidate);
+        console.log('Created candidate object V2:', candidate);
         setCompletedCandidate(candidate);
         
-        const recommendations = generateRecommendations(moduleScores);
-        console.log('Generated recommendations:', recommendations);
+        const recommendations = generateRecommendationsV2(moduleScores, registrationData.track);
+        console.log('Generated recommendations V2:', recommendations);
 
-        console.log('=== MOVING TO COMPLETION SCREEN ===');
+        console.log('=== MOVING TO COMPLETION SCREEN V2 ===');
         setCurrentState('complete');
       } catch (error) {
-        console.error('Error processing test results:', error);
+        console.error('Error processing test results V2:', error);
         toast({
           title: "Ошибка",
           description: "Не удалось обработать результаты теста. Попробуйте еще раз.",
