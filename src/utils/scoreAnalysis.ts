@@ -1,4 +1,3 @@
-
 import { Candidate, Answer } from '@/types/assessment';
 import { questionsService } from '@/services/questionsService';
 
@@ -17,6 +16,7 @@ export interface ScoreAnalysis {
     };
   };
   suspiciousPatterns: string[];
+  detailedRecommendations: string[];
 }
 
 export const analyzeScores = async (candidates: Candidate[]): Promise<ScoreAnalysis> => {
@@ -26,7 +26,8 @@ export const analyzeScores = async (candidates: Candidate[]): Promise<ScoreAnaly
       averageScore: 0,
       scoreDistribution: {},
       moduleAnalysis: {},
-      suspiciousPatterns: []
+      suspiciousPatterns: [],
+      detailedRecommendations: []
     };
   }
 
@@ -70,42 +71,106 @@ export const analyzeScores = async (candidates: Candidate[]): Promise<ScoreAnaly
     };
   });
 
-  // Поиск подозрительных паттернов
+  // Enhanced suspicious patterns detection
   const suspiciousPatterns: string[] = [];
+  const detailedRecommendations: string[] = [];
   
   const totalCandidates = candidates.length;
   const averageScore = candidates.reduce((sum, c) => sum + c.score, 0) / totalCandidates;
 
-  // Проверяем, если слишком много высоких баллов
+  // Detailed analysis of score patterns
   const highScorePercent = (scoreDistribution['7-8'] + scoreDistribution['9-10']) / totalCandidates * 100;
+  const perfectScorePercent = scoreDistribution['9-10'] / totalCandidates * 100;
+  
   if (highScorePercent > 70) {
     suspiciousPatterns.push(
       `${Math.round(highScorePercent)}% кандидатов получили высокие баллы (7+). Возможно, тест слишком легкий.`
     );
+    detailedRecommendations.push('Рассмотрите возможность добавления более сложных вопросов');
+    detailedRecommendations.push('Проверьте корректность весовых коэффициентов для каждого вопроса');
   }
 
-  // Проверяем средний балл
+  if (perfectScorePercent > 20) {
+    suspiciousPatterns.push(
+      `${Math.round(perfectScorePercent)}% кандидатов получили максимальные баллы (9-10). Это может указывать на проблемы с дифференциацией.`
+    );
+    detailedRecommendations.push('Добавьте вопросы с градуированной оценкой для лучшей дифференциации');
+  }
+
   if (averageScore > 7.5) {
     suspiciousPatterns.push(
       `Средний балл (${averageScore.toFixed(1)}) очень высокий. Рекомендуется пересмотреть сложность вопросов.`
     );
+    detailedRecommendations.push('Понизьте баллы за простые ответы');
+    detailedRecommendations.push('Увеличьте количество вопросов на логическое мышление');
   }
 
-  // Проверяем, есть ли модули с аномально высокими баллами
+  if (averageScore < 4) {
+    suspiciousPatterns.push(
+      `Средний балл (${averageScore.toFixed(1)}) слишком низкий. Возможно, вопросы слишком сложные.`
+    );
+    detailedRecommendations.push('Пересмотрите сложность вопросов');
+    detailedRecommendations.push('Добавьте вопросы среднего уровня сложности');
+  }
+
+  // Check module balance
   Object.entries(moduleAnalysis).forEach(([module, analysis]) => {
     if (analysis.averageScore > 8.5) {
       suspiciousPatterns.push(
         `Модуль "${module}" имеет слишком высокий средний балл (${analysis.averageScore.toFixed(1)}). Проверьте правильность подсчета.`
       );
     }
+    
+    if (analysis.averageScore < 3) {
+      suspiciousPatterns.push(
+        `Модуль "${module}" имеет очень низкий средний балл (${analysis.averageScore.toFixed(1)}). Возможно, вопросы слишком сложные.`
+      );
+    }
+
+    // Check for lack of variation
+    if (analysis.maxScore - analysis.minScore < 2 && analysis.candidatesCount > 5) {
+      suspiciousPatterns.push(
+        `Модуль "${module}" показывает низкую вариативность баллов. Добавьте вопросы разной сложности.`
+      );
+    }
   });
 
-  // Проверяем быстрое прохождение тестов
-  const fastCompletions = candidates.filter(c => c.completionTime && c.completionTime < 180); // менее 3 минут
-  if (fastCompletions.length > 0) {
+  // Check completion time patterns
+  const fastCompletions = candidates.filter(c => c.completionTime && c.completionTime < 180);
+  const slowCompletions = candidates.filter(c => c.completionTime && c.completionTime > 900);
+  
+  if (fastCompletions.length > totalCandidates * 0.3) {
     suspiciousPatterns.push(
-      `${fastCompletions.length} кандидат(ов) прошли тест менее чем за 3 минуты. Возможно, они не читали вопросы внимательно.`
+      `${fastCompletions.length} кандидат(ов) прошли тест менее чем за 3 минуты (${Math.round((fastCompletions.length / totalCandidates) * 100)}%). Возможно, они не читали вопросы внимательно.`
     );
+    detailedRecommendations.push('Добавьте минимальное время на каждый вопрос');
+    detailedRecommendations.push('Рассмотрите добавление вопросов, требующих больше времени на обдумывание');
+  }
+
+  if (slowCompletions.length > totalCandidates * 0.2) {
+    suspiciousPatterns.push(
+      `${slowCompletions.length} кандидат(ов) потратили более 15 минут на тест. Возможно, некоторые вопросы слишком сложные.`
+    );
+  }
+
+  // Check for answer patterns
+  const sameAnswerPatterns = candidates.filter(candidate => {
+    const answers = candidate.answers.map(a => a.selectedOption);
+    const uniqueAnswers = new Set(answers);
+    return uniqueAnswers.size < answers.length * 0.6; // Less than 60% unique answers
+  });
+
+  if (sameAnswerPatterns.length > 0) {
+    suspiciousPatterns.push(
+      `${sameAnswerPatterns.length} кандидат(ов) показали подозрительно однообразные ответы. Проверьте качество прохождения теста.`
+    );
+  }
+
+  // Add general recommendations if no issues found
+  if (suspiciousPatterns.length === 0) {
+    detailedRecommendations.push('Система подсчета баллов работает корректно');
+    detailedRecommendations.push('Рассмотрите добавление весовых коэффициентов для разных модулей');
+    detailedRecommendations.push('Продолжайте мониторинг результатов для поддержания качества оценки');
   }
 
   return {
@@ -113,7 +178,8 @@ export const analyzeScores = async (candidates: Candidate[]): Promise<ScoreAnaly
     averageScore,
     scoreDistribution,
     moduleAnalysis,
-    suspiciousPatterns
+    suspiciousPatterns,
+    detailedRecommendations
   };
 };
 

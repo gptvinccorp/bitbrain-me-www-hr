@@ -12,6 +12,7 @@ import { supabaseStorageService } from '@/services/supabaseStorage';
 import { sendEmailToCandidate } from '@/services/email';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import ScoringAnalysis from '@/components/ScoringAnalysis';
 
 const Admin = () => {
   const { t } = useLanguage();
@@ -346,25 +347,16 @@ const Admin = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Анализ точности подсчета баллов */}
-        <Card className="mb-6 border-orange-200 bg-orange-50">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <BarChart3 className="w-5 h-5 text-orange-600 mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-orange-800 mb-2">Анализ системы подсчета баллов</h3>
-                <div className="text-sm text-orange-700 space-y-1">
-                  <p>• Средний балл всех кандидатов: <strong>{averageScore}/10</strong></p>
-                  <p>• Высокие баллы (8+): {scoreDistribution.high} из {candidates.length} ({candidates.length > 0 ? Math.round((scoreDistribution.high / candidates.length) * 100) : 0}%)</p>
-                  <p>• Если большинство кандидатов получают высокие баллы, возможно, нужно:</p>
-                  <ul className="list-disc list-inside ml-4 mt-2">
-                    <li>Пересмотреть весовые коэффициенты вопросов</li>
-                    <li>Добавить более сложные вопросы</li>
-                    <li>Проверить правильность подсчета очков за ответы</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+        {/* Updated section with detailed scoring analysis */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              Детальный анализ системы подсчета баллов
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScoringAnalysis candidates={candidates} />
           </CardContent>
         </Card>
 
