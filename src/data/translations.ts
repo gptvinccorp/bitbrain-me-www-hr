@@ -1,3 +1,4 @@
+
 import { newQuestionTranslations } from './newQuestionTranslations';
 
 export const translations = {
@@ -86,10 +87,40 @@ export const translations = {
     'scoringLogicValidation.issues': 'Issues Found',
     'scoringLogicValidation.recommendations': 'Recommendations',
     'scoringLogicValidation.noIssues': 'No issues found. Scoring logic is valid.',
-     'testInterface.loading': 'Loading questions...',
+    'testInterface.loading': 'Loading questions...',
     'testInterface.tryAgain': 'Try again',
     'test.version': 'Test Version: 1.0',
-    'test.difficultyNote': 'This test is designed to assess your skills and knowledge.'
+    'test.difficultyNote': 'This test is designed to assess your skills and knowledge.',
+    
+    // Header translations
+    'header.title': 'Web3 Media Agency',
+    'header.subtitle': 'Professional Assessment Platform',
+    
+    // Hero section translations
+    'hero.title': 'Find Your Perfect Role',
+    'hero.subtitle': 'Complete our comprehensive assessment to discover which department matches your skills and personality. Get personalized feedback and recommendations.',
+    'hero.cta': 'Start Assessment',
+    
+    // Track translations
+    'track.sales': 'Sales Department',
+    'track.salesDesc': 'Perfect for relationship builders and goal-oriented professionals who thrive in dynamic environments.',
+    'track.academy': 'Internal Academy',
+    'track.academyDesc': 'Ideal for analytical minds who love learning, teaching, and developing innovative solutions.',
+    'track.creative': 'Creative Department',
+    'track.creativeDesc': 'For visionary creators who excel at viral content, storytelling, and brand communication.',
+    
+    // Features translations
+    'features.title': 'What We Evaluate',
+    'features.evaluate': 'We assess your:',
+    'features.systematic': 'Systematic and structured thinking',
+    'features.attention': 'Attention to detail',
+    'features.capacity': 'Work capacity and time management',
+    'features.collaboration': 'Team collaboration skills',
+    'features.details': 'Assessment Details:',
+    'features.questions': '8-10 targeted questions',
+    'features.time': '5-10 minutes completion time',
+    'features.results': 'Instant detailed results',
+    'features.privacy': 'Complete privacy protection'
   },
   ru: {
     'app.title': 'Платформа Оценки',
@@ -178,8 +209,39 @@ export const translations = {
     'scoringLogicValidation.noIssues': 'Проблем не найдено. Логика подсчета баллов верна.',
     'testInterface.loading': 'Загружаем вопросы...',
     'testInterface.tryAgain': 'Попробовать снова',
-    ...newQuestionTranslations,
     'test.version': 'Версия теста: 2.0 (Усложненная)',
-    'test.difficultyNote': 'Внимание: вопросы стали более сложными для лучшей оценки навыков'
+    'test.difficultyNote': 'Внимание: вопросы стали более сложными для лучшей оценки навыков',
+    
+    // Header translations
+    'header.title': 'Web3 Медиа Агентство',
+    'header.subtitle': 'Платформа Профессиональной Оценки',
+    
+    // Hero section translations
+    'hero.title': 'Найдите Свою Идеальную Роль',
+    'hero.subtitle': 'Пройдите комплексную оценку, чтобы узнать, какой отдел соответствует вашим навыкам и личности. Получите персонализированную обратную связь и рекомендации.',
+    'hero.cta': 'Начать Оценку',
+    
+    // Track translations
+    'track.sales': 'Отдел Продаж',
+    'track.salesDesc': 'Идеально для тех, кто умеет строить отношения и достигать целей в динамичной среде.',
+    'track.academy': 'Внутренняя Академия',
+    'track.academyDesc': 'Подходит для аналитических умов, которые любят учиться, преподавать и разрабатывать инновационные решения.',
+    'track.creative': 'Креативный Отдел',
+    'track.creativeDesc': 'Для творческих людей, которые превосходно создают вирусный контент, истории и брендинг.',
+    
+    // Features translations
+    'features.title': 'Что Мы Оцениваем',
+    'features.evaluate': 'Мы оцениваем ваши:',
+    'features.systematic': 'Системное и структурированное мышление',
+    'features.attention': 'Внимание к деталям',
+    'features.capacity': 'Работоспособность и управление временем',
+    'features.collaboration': 'Навыки командной работы',
+    'features.details': 'Детали Оценки:',
+    'features.questions': '8-10 целевых вопросов',
+    'features.time': '5-10 минут на выполнение',
+    'features.results': 'Мгновенные подробные результаты',
+    'features.privacy': 'Полная защита конфиденциальности',
+    
+    ...newQuestionTranslations
   }
 };
