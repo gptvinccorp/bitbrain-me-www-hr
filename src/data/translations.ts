@@ -98,7 +98,7 @@ export const translations = {
     
     // Header translations
     'header.title': 'Web3 Media Agency',
-    'header.subtitle': 'Automated Candidate Assessment System',
+    'header.subtitle': 'Automated Candidate Assessment',
     
     // Hero section translations
     'hero.title': 'Take the Test and Get Your Personal Assessment',
