@@ -72,7 +72,7 @@ const LandingContent = ({ onStartAssessment }: LandingContentProps) => {
           <h3 className="text-3xl font-bold text-center mb-8">{t('features.title')}</h3>
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <h4 className="text-xl font-semibold mb-4">{t('features.evaluate')}</h4>
+              <h4 className="text-xl font-semibold mb-4">{t('features.keyQualities')}</h4>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -93,7 +93,7 @@ const LandingContent = ({ onStartAssessment }: LandingContentProps) => {
               </ul>
             </div>
             <div>
-              <h4 className="text-xl font-semibold mb-4">{t('features.details')}</h4>
+              <h4 className="text-xl font-semibold mb-4">{t('features.testDetails')}</h4>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
