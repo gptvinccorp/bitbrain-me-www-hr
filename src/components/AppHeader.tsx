@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import LanguageSelector from '@/components/LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -16,12 +17,10 @@ const AppHeader = () => {
         </div>
         <div className="flex items-center gap-2">
           <LanguageSelector />
-          <Button 
-            variant="outline" 
-            onClick={() => window.location.href = '/admin-login'}
-            className="text-sm"
-          >
-            Админка
+          <Button variant="outline" asChild className="text-sm">
+            <Link to="/admin-login">
+              Админка
+            </Link>
           </Button>
         </div>
       </div>

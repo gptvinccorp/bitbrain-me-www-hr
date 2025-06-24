@@ -1,5 +1,6 @@
 
-import { newQuestionTranslations } from './newQuestionTranslations';
+import { questionTranslationsEn } from './questionTranslationsEn';
+import { questionTranslationsRu } from './questionTranslationsRu';
 
 export const translations = {
   en: {
@@ -12,6 +13,9 @@ export const translations = {
     'admin.candidates': 'Candidates',
     'admin.analysis': 'Analysis',
     'admin.settings': 'Settings',
+    'admin.export': 'Export Data',
+    'admin.score': 'Score',
+    'admin.details': 'Details',
     'candidateTable.name': 'Name',
     'candidateTable.email': 'Email',
     'candidateTable.track': 'Track',
@@ -89,7 +93,7 @@ export const translations = {
     'scoringLogicValidation.noIssues': 'No issues found. Scoring logic is valid.',
     'testInterface.loading': 'Loading questions...',
     'testInterface.tryAgain': 'Try again',
-    'test.version': 'Test Version: 1.0',
+    'test.version': 'Test Version: 2.0',
     'test.difficultyNote': 'This test is designed to assess your skills and knowledge.',
     
     // Header translations
@@ -120,7 +124,9 @@ export const translations = {
     'features.questions': '8-10 targeted questions',
     'features.time': '5-10 minutes completion time',
     'features.results': 'Instant detailed results',
-    'features.privacy': 'Complete privacy protection'
+    'features.privacy': 'Complete privacy protection',
+    
+    ...questionTranslationsEn
   },
   ru: {
     'app.title': 'Платформа Оценки',
@@ -132,6 +138,9 @@ export const translations = {
     'admin.candidates': 'Кандидаты',
     'admin.analysis': 'Анализ',
     'admin.settings': 'Настройки',
+    'admin.export': 'Экспорт данных',
+    'admin.score': 'Балл',
+    'admin.details': 'Детали',
     'candidateTable.name': 'Имя',
     'candidateTable.email': 'Email',
     'candidateTable.track': 'Направление',
@@ -242,6 +251,6 @@ export const translations = {
     'features.results': 'Мгновенные подробные результаты',
     'features.privacy': 'Полная защита конфиденциальности',
     
-    ...newQuestionTranslations
+    ...questionTranslationsRu
   }
 };

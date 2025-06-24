@@ -19,6 +19,7 @@ const Index = () => {
     handleStartNew
   } = useAssessment();
 
+  // Registration screen
   if (currentState === 'registration') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -30,6 +31,7 @@ const Index = () => {
     );
   }
 
+  // Test screen
   if (currentState === 'test' && registrationData) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
@@ -44,6 +46,7 @@ const Index = () => {
     );
   }
 
+  // Completion screen
   if (currentState === 'complete' && completedCandidate) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
@@ -59,6 +62,7 @@ const Index = () => {
     );
   }
 
+  // Landing page (default)
   return (
     <>
       <AppHeader />
