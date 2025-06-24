@@ -36,6 +36,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
 
   return (
     <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold text-center mb-6">{t('registration.title')}</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -43,9 +44,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('form.name')}</FormLabel>
+                <FormLabel>{t('registration.name')}</FormLabel>
                 <FormControl>
-                  <Input placeholder={t('form.name')} {...field} />
+                  <Input placeholder={t('registration.name')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -57,9 +58,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('form.email')}</FormLabel>
+                <FormLabel>{t('registration.email')}</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder={t('form.email')} {...field} />
+                  <Input type="email" placeholder={t('registration.email')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -71,9 +72,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('form.phone')}</FormLabel>
+                <FormLabel>{t('registration.phone')}</FormLabel>
                 <FormControl>
-                  <Input type="tel" placeholder={t('form.phone')} {...field} />
+                  <Input type="tel" placeholder={t('registration.phone')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -85,17 +86,17 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
             name="track"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('form.track')}</FormLabel>
+                <FormLabel>{t('registration.track')}</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={t('form.selectTrack')} />
+                      <SelectValue placeholder={t('registration.track')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="sales">{t('track.sales')}</SelectItem>
-                    <SelectItem value="academy">{t('track.academy')}</SelectItem>
-                    <SelectItem value="creative">{t('track.creative')}</SelectItem>
+                    <SelectItem value="sales">{t('registration.track.sales')}</SelectItem>
+                    <SelectItem value="academy">{t('registration.track.academy')}</SelectItem>
+                    <SelectItem value="creative">{t('registration.track.creative')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -104,7 +105,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
           />
           
           <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-            {t('form.submit')}
+            {t('registration.submit')}
           </Button>
         </form>
       </Form>
